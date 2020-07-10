@@ -31,6 +31,18 @@ const config = {
         exclude: /node_modules/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
+      {
+        test: /\.css$/,
+        include: /node_modules/,
+        use: ['style-loader','css-loader', 'postcss-loader']
+      },
+      {
+        test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000
+        }
+      }
     ],
   },
   optimization: {
