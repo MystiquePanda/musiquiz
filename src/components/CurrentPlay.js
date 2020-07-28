@@ -5,10 +5,19 @@ import MusicServices from "components/MusicServices";
 const TrackInfoDisplay = (props) => {
     return (
         <Form.Group as={Row} controlId={props.id} style={{ marginBottom: "0" }}>
-            <Form.Label column sm="3" xs="3" style={{ textAlign: "right" }}>
+            <Form.Label
+                column
+                sm="4"
+                xs="4"
+                style={{
+                    textAlign: "right",
+                    fontSize: "small",
+                    margin: "auto",
+                }}
+            >
                 {props.label}
             </Form.Label>
-            <Form.Label column sm="9" xs="9">
+            <Form.Label column sm="8" xs="8" style={{ paddingBottom: "0px" }}>
                 {props.value}
             </Form.Label>
         </Form.Group>
@@ -17,8 +26,7 @@ const TrackInfoDisplay = (props) => {
 
 const CurrentPlay = (props) => {
     const [data, setData] = useState({}); //TODO test content of data for required fields
-    const [play, setPlay] = useState("");
-    const [error, setError] = useState(undefined);
+    const [message, setMessage] = useState(props.message);
 
     const handleClick = () => {
         //TODO axios prob can build query string
@@ -45,16 +53,15 @@ const CurrentPlay = (props) => {
                 return res.json();
             })
             .then((data) => {
-                setError(undefined);
-                console.log("received data: ", data);
+                setMessage(undefined);
+                console.log("received data from music service: ", data);
 
-                setPlay(data);
                 setData(data);
                 props.updateParent(data);
             })
             .catch((err) => {
                 console.log("need to handle error. ", err);
-                setError({
+                setMessage({
                     variant: "danger",
                     msg: typeof err !== "string" ? err.toString() : err,
                 });
@@ -65,11 +72,12 @@ const CurrentPlay = (props) => {
 
     return (
         <>
-            {error ? (
-                <Alert variant={error.variant}>{error.msg}</Alert>
+            {typeof message !== "undefined" ? (
+                <Alert variant={message.variant}>{message.msg}</Alert>
             ) : undefined}
             <Button
                 required
+                disabled={props.disabled}
                 className="btn"
                 variant="primary"
                 onClick={handleClick}
@@ -77,11 +85,31 @@ const CurrentPlay = (props) => {
             >
                 {props.label}
             </Button>
-            <div>
-                <TrackInfoDisplay label="Track" value={data.track} />
-                <TrackInfoDisplay label="Album" value={data.album} />
-                <TrackInfoDisplay label="Artist" value={data.artist} />
-                <TrackInfoDisplay label="Release" value={data.releaseDate} />
+            <div style={{ display: "flex" }}>
+                <Col
+                    xs="3"
+                    style={{
+                        display: "inline-block",
+                        padding: "calc(.375rem + 1px) 0px",
+                        alignSelf: "center",
+                    }}
+                >
+                    <img
+                        src={data.artwork}
+                        style={{
+                            width: "100%",
+                        }}
+                    />
+                </Col>
+                <Col xs="9" style={{ display: "inline-block" }}>
+                    <TrackInfoDisplay label="Track" value={data.track} />
+                    <TrackInfoDisplay label="Album" value={data.album} />
+                    <TrackInfoDisplay label="Artist" value={data.artist} />
+                    <TrackInfoDisplay
+                        label="Release"
+                        value={data.releaseDate}
+                    />
+                </Col>
             </div>
         </>
     );

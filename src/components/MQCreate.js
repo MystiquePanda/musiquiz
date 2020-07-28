@@ -6,15 +6,20 @@ import MQCreateAddQuestion from "components/MQCreateAddQuestion";
 import InplaceEditInput from "components/InplaceEditInput";
 import Question from "components/Question";
 
+function generateRandomQuizName (){
+    return "New Quiz";
+}
+
+
 class MQCreate extends Component {
     state = {
         questions: [Object.assign({}, Question.template)],
         description: "",
-        quizName: "",
+        quizName: generateRandomQuizName(),
         maxQNum: 3,
         nextQId: 1,
         activeQId: 0,
-    };
+    }
 
     handleQuizNameChange = (e) => {
         this.setState({ quizName: e.target.value });
@@ -138,7 +143,7 @@ class MQCreate extends Component {
                 >
                     <Modal.Title>
                         <InplaceEditInput
-                            value={quizName ? quizName : "New Quiz"}
+                            value={quizName}
                             style={{ margin: "0px" }}
                             parentHandleChange={this.handleQuizNameChange}
                         ></InplaceEditInput>

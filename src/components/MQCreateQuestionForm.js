@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 
-import Accordion from "react-bootstrap/Accordion";
-import Card from "react-bootstrap/Card";
+import { Accordion, Form, Card } from "react-bootstrap";
 import { BsTrashFill } from "react-icons/bs";
-import Form from "react-bootstrap/Form";
 import CurrentPlay from "components/CurrentPlay";
 import { GiSoundWaves } from "react-icons/gi";
 import Question from "components/Question";
 
 const MQCreateQuestionForm = (props) => {
     const [question, setQuestion] = useState(props.question);
-    const [answer, setAnswer] = useState(props.answer);
     const [matchLevel, setMatchLevel] = useState(props.level);
     const { id, enableDelete, handleAccordion, musicService } = props;
     const { editMode } = props;
@@ -26,31 +23,8 @@ const MQCreateQuestionForm = (props) => {
         props.handleQuestionDelete(id);
     };
 
-    const checkAnswer = (response, quizAnswer, matchLevel) => {
-        return matchLevel.every((m) => {
-            console.log(
-                "Checking %s:%s",
-                m,
-                response[m] == quizAnswer[m],
-                response[m],
-                quizAnswer[m]
-            );
-            return JSON.stringify(response[m]) == JSON.stringify(quizAnswer[m]);
-        });
-    };
-
     const handleAnswerChange = (a) => {
-        //TODO check validity of a
-        if (editMode) {
-            setAnswer(a);
-            props.setParentQuestion("answer", a);
-        } else {
-            checkAnswer(a, answer, matchLevel)
-                ? alert("correct!")
-                : alert("wrong!");
-        }
-
-        console.log("answer: ", a);
+        props.setParentQuestion(editMode ? "answer" : "response", a);
     };
 
     const handleMatchLevelChange = (e) => {
@@ -67,7 +41,9 @@ const MQCreateQuestionForm = (props) => {
                 style={{ paddingTop: "5px", paddingBottom: "5px" }}
                 onClick={handleAccordion}
             >
-                {question === "" ? "Question " + (id + 1) : question}
+                {!editMode || question === ""
+                    ? "Question " + (id + 1)
+                    : question}
                 {enableDelete && editMode ? (
                     <BsTrashFill
                         onClick={handleDeleteQuestion}
@@ -104,7 +80,6 @@ const MQCreateQuestionForm = (props) => {
                                 record
                             </Form.Text>
                         </Form.Label>
-
                         <CurrentPlay
                             name="answer"
                             label={<GiSoundWaves />}

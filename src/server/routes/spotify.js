@@ -169,7 +169,7 @@ const currentPlayCallback = (tryRefresh, req, res) => {
             const artists = body.item.artists.map((e) => {
                 return e.name;
             });
-            const artwork = body.item.album.images[0];
+            const artwork = body.item.album.images[0].url;
             const album = body.item.album.name;
             const release = body.item.album.release_date;
 
