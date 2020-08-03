@@ -5,6 +5,9 @@ FROM node:12-slim
 # Create and change to the app directory.
 WORKDIR /usr/src/app/musiquiz
 
+ARG bt_mongodb_pass bt_spotify_secret
+ENV MONGODB_PASS=$bt_mongodb_pass SPOTIFY_SECRET=$bt_spotify_secret 
+
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
 # Copying this separately prevents re-running npm install on every code change.
