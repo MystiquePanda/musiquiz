@@ -15,10 +15,10 @@ ENV MONGODB_PASS=$bt_mongodb_pass SPOTIFY_SECRET=$bt_spotify_secret
 COPY package*.json ./
 
 # Install production dependencies.
-RUN npm install --only=production
+RUN yarn install --only=production
 
 # Copy local code to the container image.
 COPY . ./
 
 # Run the web service on container startup.
-CMD [ "npm", "start" ]
+CMD [ "yarn", "start" ]
