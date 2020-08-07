@@ -9,16 +9,17 @@ ARG bt_mongodb_pass
 ARG bt_spotify_secret
 ENV MONGODB_PASS=$bt_mongodb_pass SPOTIFY_SECRET=$bt_spotify_secret 
 
+run echo "args passed in bt_mongodb_pass=${bt_mongodb_pass} bt_spotify_secret=${bt_spotify_secret}"
+
+
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
 # Copying this separately prevents re-running npm install on every code change.
-COPY package*.json ./
+COPY . .
+RUN yarn install --production
+RUN yarn build:all
 
-# Install production dependencies.
-RUN yarn install --only=production
-
-# Copy local code to the container image.
-COPY . ./
+# Copy built file to container image
 
 # Run the web service on container startup.
 CMD [ "yarn", "prod:start" ]
