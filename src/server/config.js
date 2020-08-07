@@ -1,6 +1,6 @@
 const env = process ? process.env : "development";
 const port = env.PORT || 4242;
-const host = env.HOSTNAME || "localhost";
+const host = env.HOSTNAME || "0.0.0.0";
 
 module.exports = {
     port: port,
