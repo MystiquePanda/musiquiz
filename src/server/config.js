@@ -10,12 +10,12 @@ module.exports = {
     isDev: isDev,
     isBrowser: typeof window !== "undefined",
     baseURI: isDev ? "http://" + host + ":" + port : base,
-    spotifySecret: env.MQ_SPOTIFY_SECRET,
+    spotifySecret: env.MQ_SPOTIFY_SECRET.trim(),
     dbConnStr:
         "mongodb+srv://musiquiz_admin:" +
-        env.MQ_MONGODB_PASS +
+        env.MQ_MONGODB_PASS.trim() +
         "@cluster0-og4sd.mongodb.net/musiquiz?retryWrites=true&w=majority",
     SESS_NAME: "session",
     SESS_LIFETIME: 5 * 60 * 1000,
-    SESS_SECRET: env.MQ_SESS_SECRET,
+    SESS_SECRET: env.MQ_SESS_SECRET.trim(),
 };
