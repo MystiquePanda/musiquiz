@@ -9,7 +9,7 @@ steps:
       - '-f'
       - Dockerfile
       - '--build-arg'
-      - 'bt_mongo_pass=$_MONGO_PASS '
+      - 'bt_mongodb_pass=$_MONGODB_PASS '
       - '--build-arg'
       - 'bt_spotify_secret=$_SPOTIFY_SECRET '
       - '--build-arg'
