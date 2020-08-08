@@ -1,15 +1,15 @@
 const env = process ? process.env : "development";
 const port = env.PORT || 8080;
 const host = env.HOSTNAME || "0.0.0.0";
-const isDev = env.NODE_ENV !== "production";
-const base = env.MQ_BASE_URI || "https://musiquiz.mystiquepanda.com";
+const isDev = env.NODE_ENV.trim() !== "production";
+const base = env.MQ_BASE_URI.trim() || "https://musiquiz.mystiquepanda.com";
 
 module.exports = {
     port: port,
     host: host,
     isDev: isDev,
     isBrowser: typeof window !== "undefined",
-    baseURI: isDev ? "http://" + host + ":" + port : env.MQ_BASE_URI,
+    baseURI: isDev ? "http://" + host + ":" + port : base,
     spotifySecret: env.MQ_SPOTIFY_SECRET,
     dbConnStr:
         "mongodb+srv://musiquiz_admin:" +
