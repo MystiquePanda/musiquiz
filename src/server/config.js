@@ -1,7 +1,9 @@
 const env = process ? process.env : "development";
+console.log(env);
+
 const port = env.PORT || 8080;
 const host = env.HOSTNAME || "0.0.0.0";
-const isDev = env.NODE_ENV.trim() !== "production";
+const isDev = typeof env.NODE_ENV === "undefined" || env.NODE_ENV.trim() !== "production";
 const base = env.MQ_BASE_URI.trim() || "https://musiquiz.mystiquepanda.com";
 
 module.exports = {

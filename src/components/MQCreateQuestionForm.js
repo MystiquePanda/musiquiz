@@ -5,11 +5,12 @@ import { BsTrashFill } from "react-icons/bs";
 import CurrentPlay from "components/CurrentPlay";
 import { GiSoundWaves } from "react-icons/gi";
 import Question from "components/Question";
+import MQuizStyles from "components/MQuizStyles";
 
 const MQCreateQuestionForm = (props) => {
     const [question, setQuestion] = useState(props.question);
     const [matchLevel, setMatchLevel] = useState(props.level);
-    const { id, enableDelete, handleAccordion, musicService } = props;
+    const { id, enableDelete, musicService, handleAccordion } = props;
     const { editMode } = props;
 
     const handleQuestionChange = (e) => {
@@ -38,7 +39,16 @@ const MQCreateQuestionForm = (props) => {
             <Accordion.Toggle
                 as={Card.Header}
                 eventKey={id}
-                style={{ paddingTop: "5px", paddingBottom: "5px" }}
+                style={{
+                    paddingTop: "5px",
+                    paddingBottom: "5px",
+                    background:
+                        typeof props.background === "undefined"
+                            ? editMode
+                                ? MQuizStyles.createColor
+                                : MQuizStyles.playColor
+                            : props.background,
+                }}
                 onClick={handleAccordion}
             >
                 {!editMode || question === ""
@@ -80,6 +90,7 @@ const MQCreateQuestionForm = (props) => {
                                 record
                             </Form.Text>
                         </Form.Label>
+
                         <CurrentPlay
                             name="answer"
                             label={<GiSoundWaves />}
@@ -87,7 +98,7 @@ const MQCreateQuestionForm = (props) => {
                         />
                     </Form.Group>
 
-                    {editMode ? (
+                    {editMode && (
                         <Form.Group
                             controlId="difficulty"
                             style={{ marginBottom: "0px" }}
@@ -101,13 +112,11 @@ const MQCreateQuestionForm = (props) => {
                                 type="range"
                                 custom
                                 onChange={handleMatchLevelChange}
-                                min="1"
                                 defaultValue={matchLevel.length}
+                                min="1"
                                 max="3"
                             />
                         </Form.Group>
-                    ) : (
-                        <></>
                     )}
                 </Card.Body>
             </Accordion.Collapse>
