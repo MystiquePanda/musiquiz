@@ -9,7 +9,13 @@ steps:
       - '-f'
       - Dockerfile
       - '--build-arg'
-      - 'bt_mongo_pass=$_MONGO_PASS bt_spotify_secret=$_SPOTIFY_SECRET bt_base_uri=$_BASE_URI bt_sess_secret=$_SESS_SECRET'
+      - 'bt_mongo_pass=$_MONGO_PASS '
+      - '--build-arg'
+      - 'bt_spotify_secret=$_SPOTIFY_SECRET '
+      - '--build-arg'
+      - 'bt_base_uri=$_BASE_URI '
+      - '--build-arg'
+      - 'bt_sess_secret=$_SESS_SECRET'
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
