@@ -35,7 +35,7 @@ export default function MQuizPicker(props) {
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>
                     Close
-                </Button>raku
+                </Button>
             </Modal.Footer>
         </>
     );
