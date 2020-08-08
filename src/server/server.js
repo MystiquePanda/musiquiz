@@ -7,7 +7,6 @@ import cookieParser from "cookie-parser";
 import config from "server/config";
 
 import session from "express-session";
-//import uuid from "node-uuid";
 
 import spotifyRouter from "server/routes/spotify.js";
 import dbRouter from "server/routes/db.js";
@@ -38,7 +37,7 @@ app.use(
         cookie: {
             maxAge: config.SESS_LIFETIME,
             sameSite: true,
-            secure: !config.isDev,
+            secure: false,
         },
     })
 );

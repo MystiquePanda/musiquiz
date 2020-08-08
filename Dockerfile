@@ -7,9 +7,9 @@ WORKDIR /usr/src/app/musiquiz
 
 ARG bt_mongodb_pass
 ARG bt_spotify_secret
-ENV MONGODB_PASS=$bt_mongodb_pass SPOTIFY_SECRET=$bt_spotify_secret 
-
-run echo "args passed in bt_mongodb_pass=${bt_mongodb_pass} bt_spotify_secret=${bt_spotify_secret}"
+ARG bt_base_uri
+ARG bt_sess_secret
+ENV MQ_MONGODB_PASS=$bt_mongodb_pass MQ_SPOTIFY_SECRET=$bt_spotify_secret MQ_BASE_URI=$bt_base_uri MQ_SESS_SECRET=$bt_sess_secret 
 
 
 # Copy application dependency manifests to the container image.

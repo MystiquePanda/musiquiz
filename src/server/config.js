@@ -1,19 +1,21 @@
 const env = process ? process.env : "development";
-const port = env.PORT || 4242;
+const port = env.PORT || 8080;
 const host = env.HOSTNAME || "0.0.0.0";
+const isDev = env.NODE_ENV !== "production";
+const base = env.MQ_BASE_URI || "https://musiquiz.mystiquepanda.com";
 
 module.exports = {
     port: port,
     host: host,
-    isDev: env.NODE_ENV !== "production",
+    isDev: isDev,
     isBrowser: typeof window !== "undefined",
-    baseURI: "http://" + host + ":" + port,
-    spotifySecret: env.SPOTIFY_SECRET,
+    baseURI: isDev ? "http://" + host + ":" + port : env.MQ_BASE_URI,
+    spotifySecret: env.MQ_SPOTIFY_SECRET,
     dbConnStr:
         "mongodb+srv://musiquiz_admin:" +
-        env.MONGODB_PASS +
+        env.MQ_MONGODB_PASS +
         "@cluster0-og4sd.mongodb.net/musiquiz?retryWrites=true&w=majority",
     SESS_NAME: "session",
     SESS_LIFETIME: 5 * 60 * 1000,
-    SESS_SECRET: "38ced02ac05547418ff0fc056e70ddae",
+    SESS_SECRET: env.MQ_SESS_SECRET,
 };

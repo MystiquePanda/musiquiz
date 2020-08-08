@@ -5,7 +5,7 @@ import querystring from "querystring";
 
 const router = express.Router();
 
-const client_id = "b4c369774955450f8751e75261389a5b";
+const client_id = "39141fb989524588ab46ac4ccaff6ee7";
 const client_secret = config.spotifySecret;
 
 const auth_callback_uri = config.baseURI + "/spotify/logincb";
@@ -57,7 +57,7 @@ router.get("/logincb", function (req, res) {
 
     if (state === null || state !== storedState) {
         res.redirect(
-            "/door?error=" +
+            "/door?" +
                 querystring.stringify({
                     error: "state_mismatch",
                 })
@@ -90,8 +90,7 @@ router.get("/logincb", function (req, res) {
             } else {
                 console.log("ERROR logging in", error, response.statusCode);
                 res.redirect(
-                    config.baseURI +
-                        "/door?error=" +
+                        "/door?" +
                         querystring.stringify({
                             error: "invalid_token",
                         })
@@ -110,6 +109,7 @@ function setMusicServiceAccess(body, req) {
     req.session.refreshToken = refresh_token;
     req.session.token_type = token_type;
     req.session.musicService = "spotify";
+    console.log("Setting accessToken on session ",access_token);
 }
 
 const refreshToken = (req, res, next) => {
