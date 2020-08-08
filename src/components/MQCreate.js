@@ -5,11 +5,11 @@ import MQCreateQuestionForm from "components/MQCreateQuestionForm";
 import MQCreateAddQuestion from "components/MQCreateAddQuestion";
 import InplaceEditInput from "components/InplaceEditInput";
 import Question from "components/Question";
+import MQuizStyles from "components/MQuizStyles";
 
-function generateRandomQuizName (){
+function generateRandomQuizName() {
     return "New Quiz";
 }
-
 
 class MQCreate extends Component {
     state = {
@@ -19,7 +19,7 @@ class MQCreate extends Component {
         maxQNum: 3,
         nextQId: 1,
         activeQId: 0,
-    }
+    };
 
     handleQuizNameChange = (e) => {
         this.setState({ quizName: e.target.value });
@@ -74,15 +74,15 @@ class MQCreate extends Component {
         };
 
         const args = {
-            method: "POST", // *GET, POST, PUT, DELETE, etc.
-            mode: "cors", // no-cors, *cors, same-origin
-            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: "same-origin", // include, *same-origin, omit
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
             headers: {
                 "Content-Type": "application/json",
             },
-            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(quiz), // body data type must match "Content-Type" header
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify(quiz),
         };
 
         console.log("saving questions:", quiz);
@@ -93,14 +93,12 @@ class MQCreate extends Component {
                 return res.json();
             })
             .then((res) => {
-                // react redirect (front end)
-                // this.props.history.push("/play/" + res.quizId);
-                // js redirect
+                //TODO generate link and ask for email
                 window.location.href = "/play/" + res.quizId;
             });
     };
 
-    handleClose = (e) => {
+    handleClose = () => {
         this.props.history.goBack();
     };
 
@@ -108,7 +106,7 @@ class MQCreate extends Component {
         this.setState({ activeQId: e });
     };
 
-    lastQuestionCompleted = (q) => {    
+    lastQuestionCompleted = (q) => {
         return q.question.trim().length > 0 && Object.keys(q.answer).length > 0;
     };
 
@@ -144,7 +142,10 @@ class MQCreate extends Component {
                     <Modal.Title>
                         <InplaceEditInput
                             value={quizName}
-                            style={{ margin: "0px" }}
+                            style={{
+                                margin: "0px",
+                                color: MQuizStyles.playColor,
+                            }}
                             parentHandleChange={this.handleQuizNameChange}
                         ></InplaceEditInput>
                     </Modal.Title>

@@ -85,6 +85,7 @@ const CurrentPlay = (props) => {
             >
                 {props.label}
             </Button>
+
             <div style={{ display: "flex" }}>
                 <Col
                     xs="3"
