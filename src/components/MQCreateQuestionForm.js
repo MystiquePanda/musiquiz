@@ -114,7 +114,7 @@ const MQCreateQuestionForm = (props) => {
                                 onChange={handleMatchLevelChange}
                                 defaultValue={matchLevel.length}
                                 min="1"
-                                max="3"
+                                max="10"
                             />
                         </Form.Group>
                     )}
