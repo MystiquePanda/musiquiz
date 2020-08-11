@@ -18,6 +18,6 @@ module.exports = {
         env.MQ_MONGODB_PASS.trim() +
         "@cluster0-og4sd.mongodb.net/musiquiz?retryWrites=true&w=majority",
     SESS_NAME: "session",
-    SESS_LIFETIME: 5 * 60 * 1000,
+    SESS_LIFETIME: 30 * 60 * 1000,
     SESS_SECRET: env.MQ_SESS_SECRET.trim(),
 };
