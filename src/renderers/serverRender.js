@@ -9,6 +9,8 @@ export async function serverRenderer(req, data) {
         query: req.query,
         url: req.url,
         baseUrl: req.url.includes("?") ? req.url.split("?")[0] : req.url,
+        userName: req.session ? req.session.userName : undefined,
+        musicService: req.session ? req.session.musicService : undefined,
         data: data,
     };
 
@@ -16,7 +18,7 @@ export async function serverRenderer(req, data) {
         title: `${initialData.appName}`,
     };
 
-    console.log("[SERVER RENDERER] InitialData : ",initialData);
+    console.log("[SERVER RENDERER] InitialData : ", initialData);
     return Promise.resolve({
         initialData,
         initialMarkup: ReactDOMServer.renderToString(

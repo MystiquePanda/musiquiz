@@ -9,7 +9,7 @@ const MQDoor = (props) => {
     const MusicServicePopover = (
         <Popover id="musicServiceLinkTooltip">
             <Popover.Content>
-                <a href={ms.loginURL} style={{ color: ms.color}}>
+                <a href={ms.loginURL} style={{ color: ms.color }}>
                     <img
                         src={ms.logoSmall}
                         alt={service + " logo"}
@@ -26,25 +26,23 @@ const MQDoor = (props) => {
     );
 
     return (
-        <Row className="justify-content-center" style={{ margin: "auto" }}>
-            <Col xs="4" style={{ padding: 0 }}>
-                <OverlayTrigger
-                    placement="bottom"
-                    delay={{ show: 0, hide: 10000 }}
-                    overlay={MusicServicePopover}
-                >
-                    <img
-                        alt="musiQuiz logo"
-                        src="images/logo-musiQuiz.png"
-                        style={{
-                            padding: 0,
-                            height: "100%",
-                            width: "100%",
-                        }}
-                    />
-                </OverlayTrigger>
-            </Col>
-        </Row>
+        <Col xs="4" style={{ padding: 0 }}>
+            <OverlayTrigger
+                placement="bottom"
+                delay={{ show: 0, hide: 10000 }}
+                overlay={MusicServicePopover}
+            >
+                <img
+                    alt="musiQuiz logo"
+                    src="images/logo-musiQuiz.png"
+                    style={{
+                        padding: 0,
+                        height: "100%",
+                        width: "100%",
+                    }}
+                />
+            </OverlayTrigger>
+        </Col>
     );
 };
 
