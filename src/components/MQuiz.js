@@ -103,7 +103,8 @@ export default function MQuiz(props) {
                 style={{
                     paddingBottom: "8px",
                     paddingTop: "8px",
-                    color: MQuizStyles.playColor,
+                    color: "white",
+                    backgroundColor: MQuizStyles.playColor
                 }}
             >
                 <Modal.Title>{quiz.name}</Modal.Title>

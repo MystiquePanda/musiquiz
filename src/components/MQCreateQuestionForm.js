@@ -14,9 +14,18 @@ const MQCreateQuestionForm = (props) => {
     const { editMode } = props;
 
     const handleQuestionChange = (e) => {
-        const q = e.target.value;
-        setQuestion(q);
-        props.setParentQuestion("question", q);
+        const ele = e.target; 
+
+        //use scroll top to determine if space is enough
+        const t = ele.scrollTop; 
+        ele.scrollTop = 0;
+        if (t > 0) {
+            ele.style.height = ele.offsetHeight + t + t + "px";
+        }
+
+        // update values
+        setQuestion(ele.value);
+        props.setParentQuestion("question", ele.value);
     };
 
     const handleDeleteQuestion = (e) => {
@@ -68,15 +77,18 @@ const MQCreateQuestionForm = (props) => {
                 <Card.Body>
                     <Form.Group controlId={"question" + id}>
                         <Form.Label>Question</Form.Label>
-                        <Form.Control
-                            name="question"
-                            as="textarea"
-                            rows="1"
-                            required
-                            readOnly={!editMode}
-                            value={question}
-                            onChange={handleQuestionChange}
-                        ></Form.Control>
+                        {editMode ? (
+                            <Form.Control
+                                name="question"
+                                as="textarea"
+                                rows="1"
+                                required
+                                value={question}
+                                onChange={handleQuestionChange}
+                            ></Form.Control>
+                        ) : (
+                            <div>{question}</div>
+                        )}
                     </Form.Group>
 
                     <Form.Group

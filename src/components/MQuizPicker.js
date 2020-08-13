@@ -13,7 +13,8 @@ export default function MQuizPicker(props) {
                 style={{
                     paddingBottom: "8px",
                     paddingTop: "8px",
-                    color: MQuizStyles.playColor,
+                    color: "white",
+                    backgroundColor: MQuizStyles.playColor
                 }}
             >
                 <Modal.Title>Pick a Quiz</Modal.Title>

@@ -16,7 +16,7 @@ class MQCreate extends Component {
         questions: [Object.assign({}, Question.template)],
         description: "",
         quizName: generateRandomQuizName(),
-        maxQNum: 3,
+        maxQNum: 10,
         nextQId: 1,
         activeQId: 0,
     };
