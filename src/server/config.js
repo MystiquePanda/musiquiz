@@ -26,6 +26,6 @@ module.exports = {
         mongoPass +
         "@"+mongoCluster+"/musiquiz",
     sessName: "session",
-    sessLifetime: 30 * 24 * 60 * 60 * 1000,
+    sessLifetime: 5 * 24 * 60 * 60 * 1000,
     sessSecret: env.MQ_SESS_SECRET.trim(),
 };
