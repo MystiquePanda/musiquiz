@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import MQuizStyles from "components/MQuizStyles";
 import MusicServices from "components/MusicServices";
 import MusicServiceLink from "components/MusicServiceLink";
-import { FaRegUserCircle } from "react-icons/fa";
+import { BsPeopleCircle } from "react-icons/bs";
 import { Button, OverlayTrigger, Popover } from "react-bootstrap";
 
 const MQUserBar = (props) => {
@@ -12,6 +12,8 @@ const MQUserBar = (props) => {
 
     const UserPopover = (
         <Popover id="userPopover">
+            <Popover.Title as="h3">Hello! {" " + user.userName}</Popover.Title>
+
             <Popover.Content>
                 powered by{" "}
                 <img
@@ -24,6 +26,7 @@ const MQUserBar = (props) => {
                 ></img>
                 <br />
                 <Button
+                    disabled
                     className="secondary"
                     style={{ margin: "auto" }}
                     onClick={() => {
@@ -37,22 +40,20 @@ const MQUserBar = (props) => {
     );
 
     return (
-        <div
-            style={{
-                color: MQuizStyles.playColor,
-            }}
+        <OverlayTrigger
+            placement="bottom"
+            delay={{ show: 0, hide: 3000 }}
+            overlay={UserPopover}
         >
-            <OverlayTrigger
-                placement="bottom"
-                delay={{ show: 0, hide: 10000 }}
-                overlay={UserPopover}
-            >
-                <div>
-                    <FaRegUserCircle style={{ marginRight: "10px" }} />
-                    <label>{" " + user.userName}</label>
-                </div>
-            </OverlayTrigger>
-        </div>
+            <BsPeopleCircle
+                style={{
+                    color: MQuizStyles.playColor,
+                    width: "30px",
+                    height: "30px",
+                    margin: "10px",
+                }}
+            />
+        </OverlayTrigger>
     );
 };
 

@@ -1,4 +1,4 @@
-import React, { Component, location } from "react";
+import React, { Component } from "react";
 
 import { Route, Switch } from "react-router-dom";
 import { Container, Row } from "react-bootstrap";
@@ -11,14 +11,9 @@ export default class App extends Component {
 
     constructor(props) {
         super(props);
-        //console.log("[App.js] >>>>> props:", this.props);
         this.state = this.props;
 
         if (typeof window !== "undefined" && window.__INITIAL_DATA__) {
-            /*console.log(
-                "[App.js] >>>> widow initial Data",
-                window.__INITIAL_DATA__
-            );*/
             this.state = window.__INITIAL_DATA__;
         }
         console.log("[App.js] >>>> state", this.state);

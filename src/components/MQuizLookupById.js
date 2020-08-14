@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Form, Col, Alert, Button } from "react-bootstrap";
-
+import { Form, Alert, Button } from "react-bootstrap";
+import { BsCloudDownload } from "react-icons/bs";
 export default function MQuizLookupById(props) {
     const { onLoad } = props;
 
@@ -51,23 +51,23 @@ export default function MQuizLookupById(props) {
                     <Alert variant={message.variant}>{message.msg}</Alert>
                 )}
             </Form.Row>
-            <Form.Row>
-                <Col xs={9}>
+            <Form.Row
+                style={{ display: "flex", justifyContent: "space-between" }}
+            >
+                <div style={{flexGrow:1,marginRight:"10px"}}>
                     <Form.Control
                         id="quizID"
                         value={quizId}
                         onChange={handleQuizIdChange}
                     ></Form.Control>
-                </Col>
-                <Col xs={3}>
-                    <Button
-                        variant="primary"
-                        disabled={quizId.length !== 24}
-                        onClick={handleLookup}
-                    >
-                        Load
-                    </Button>
-                </Col>
+                </div>
+                <Button
+                    variant="primary"
+                    disabled={quizId.length !== 24}
+                    onClick={handleLookup}
+                >
+                    <BsCloudDownload />
+                </Button>
             </Form.Row>
         </Form>
     );

@@ -14,10 +14,10 @@ const MQCreateQuestionForm = (props) => {
     const { editMode } = props;
 
     const handleQuestionChange = (e) => {
-        const ele = e.target; 
+        const ele = e.target;
 
         //use scroll top to determine if space is enough
-        const t = ele.scrollTop; 
+        const t = ele.scrollTop;
         ele.scrollTop = 0;
         if (t > 0) {
             ele.style.height = ele.offsetHeight + t + t + "px";
@@ -47,16 +47,17 @@ const MQCreateQuestionForm = (props) => {
         <Card>
             <Accordion.Toggle
                 as={Card.Header}
-                eventKey={id}
+                eventKey={id.toString()}
                 style={{
                     paddingTop: "5px",
                     paddingBottom: "5px",
                     background:
                         typeof props.background === "undefined"
                             ? editMode
-                                ? MQuizStyles.createColor
-                                : MQuizStyles.playColor
+                                ? MQuizStyles.playColor
+                                : MQuizStyles.createColor
                             : props.background,
+                    color: "white",
                 }}
                 onClick={handleAccordion}
             >
@@ -73,7 +74,7 @@ const MQCreateQuestionForm = (props) => {
                     />
                 ) : undefined}
             </Accordion.Toggle>
-            <Accordion.Collapse eventKey={id}>
+            <Accordion.Collapse eventKey={id.toString()}>
                 <Card.Body>
                     <Form.Group controlId={"question" + id}>
                         <Form.Label>Question</Form.Label>

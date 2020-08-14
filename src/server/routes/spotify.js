@@ -1,8 +1,9 @@
 import config from "server/config";
 import express from "express";
-import request from "request";
 import querystring from "querystring";
 import fetch from "node-fetch";
+import sessionManager from "server/session";
+
 const router = express.Router();
 
 const auth_callback_uri = config.baseURI + "/spotify/logincb";
@@ -10,8 +11,13 @@ const spotify_base_uri = "https://accounts.spotify.com";
 const spotify_auth_uri = spotify_base_uri + "/authorize?";
 const spotify_api_token_uri = spotify_base_uri + "/api/token";
 const spotify_api_uri = "https://api.spotify.com/v1";
-const state_key = "spotify_auth_state";
 
+const state_key = "spotify_auth_state";
+const token_auth =
+    "Basic " +
+    Buffer.from(config.spotifyClient + ":" + config.spotifySecret).toString(
+        "base64"
+    );
 const generateRandomString = function (length) {
     let text = "";
     const possible =
@@ -75,11 +81,7 @@ function loginCbHandler(req, res) {
         const authOptions = {
             method: "POST",
             headers: {
-                Authorization:
-                    "Basic " +
-                    Buffer.from(
-                        config.spotifyClient + ":" + config.spotifySecret
-                    ).toString("base64"),
+                Authorization: token_auth,
             },
             body: params,
             compress: true,
@@ -120,7 +122,7 @@ function fetchMusciServiceAccount(session) {
     const option = {
         method: "GET",
         headers: {
-            Authorization: "Bearer " + session.accessToken,
+            Authorization: sessionManager.get(session, "accessToken"),
         },
     };
 
@@ -135,74 +137,67 @@ function fetchMusciServiceAccount(session) {
 }
 
 function setMusicServiceAccess(body, req) {
-    const access_token = body.access_token;
-    const refresh_token = body.refresh_token;
-    const token_type = body.token_type;
+    const e = new Date(Date.now());
+    e.setHours(body.expires_in / 3600 + e.getHours());
 
-    req.session.accessToken = access_token;
-    req.session.refreshToken = refresh_token;
-    req.session.tokenType = token_type;
-    req.session.musicService = "spotify";
-    console.log("Set accessToken on session ", access_token);
+    sessionManager.set(req.session, {
+        accessToken: body.token_type + " " + body.access_token,
+        refreshToken: body.refresh_token,
+        tokenExpiration: e,
+    });
 }
 
 function setMusicServiceUser(user, req) {
-    req.session.userName = user.display_name;
-    req.session.userEmail = user.email;
-    req.session.userId = user.id;
-    req.session.musicService = "spotify";
+    sessionManager.set(req.session, {
+        userName: user.display_name,
+        userEmail: user.email,
+        userId: user.id,
+        userScope: user.scope,
+        musicService: "spotify",
+    });
 }
 
-const refreshToken = (req, res, next) => {
+const refreshToken = (req, res) => {
     const session = req.session;
-    /*if (
-        typeof session === "undefined" ||
-        typeof session.refresh_token === "undefined"
-    ) {
-        console.log("can't refresh token");
-        res.status(401).send({
-            errorMessage: "Session expired. Please refresh",
-        });
-        return;
-    }*/
+    console.log(
+        "[SPOTIFY] refreshing token using ",
+        sessionManager.get(session, "refreshToken")
+    );
 
-    console.log("refreshing token using ", session.refresh_token);
+    const params = new URLSearchParams();
+    params.append("refresh_token", sessionManager.get(session, "refreshToken"));
+    params.append("grant_type", "refresh_token");
 
     const authOptions = {
-        url: spotify_api_token_uri,
+        method: "POST",
         headers: {
-            Authorization:
-                "Basic " +
-                Buffer.from(
-                    config.spotifyClient + ":" + config.spotifySecret
-                ).toString("base64"),
+            Authorization: token_auth,
         },
-        form: {
-            grant_type: "refresh_token",
-            refresh_token: session.refresh_token,
-        },
-        json: true,
+        body: params,
     };
 
-    request.post(authOptions, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            console.log("token refreshed. ");
-            setMusicServiceAccess(body, req);
-            next();
-        } else {
-            //TODO handle error refreshing
-            console.log("error refreshing token. ", error);
-            res.status(response.errorCode).send(body);
-        }
-    });
+    return fetch(spotify_api_token_uri, authOptions)
+        .then((r) => {
+            if (r.ok) {
+                return r.json();
+            }
+            throw new Error(
+                "Error refreshing access token. " +
+                    r.status +
+                    ":" +
+                    r.statusText
+            );
+        })
+        .then(async (r) => {
+            setMusicServiceAccess(r, req);
+        });
 };
 
-const currentPlayCallback = (tryRefresh, req, res) => {
+const currentPlayCallback = (session, res) => {
     const options = {
         method: "GET",
         headers: {
-            Authorization:
-                req.session.tokenType + " " + req.session.accessToken,
+            Authorization: sessionManager.get(session, "accessToken"),
         },
         compress: true,
     };
@@ -211,17 +206,10 @@ const currentPlayCallback = (tryRefresh, req, res) => {
         .then((r) => {
             if (r.ok) {
                 return r.json();
-            } else if (tryRefresh && r.status === "401") {
-                console.log(
-                    "[SPOTIFY] access token expired, attempting refresh"
-                );
-
-                refreshToken(req, res, (rq, rs) =>
-                    currentPlayCallback(false, rq, rs)
-                );
-            } else {
-                res.status(r.status).send();
             }
+            const e = new Error(r.status + ":" + r.statusText);
+            e.status = r.status;
+            throw e;
         })
         .then((r) => {
             const track = r.item.name;
@@ -244,12 +232,12 @@ const currentPlayCallback = (tryRefresh, req, res) => {
             });
         })
         .catch((e) => {
-            console.log("[SPOTIFY] unexpected error ", e);
-            res.status(500).send();
+            console.log("[SPOTIFY] error ", e);
+            res.status(e.status).send();
         });
 };
 
-const createPlayList = (tryRefresh, req, res, quiz, quizDesc) => {
+const createPlayList = (req, res, quiz, quizDesc) => {
     const params = {
         name: "MusiQ-" + quiz.name,
         description: quizDesc,
@@ -259,27 +247,22 @@ const createPlayList = (tryRefresh, req, res, quiz, quizDesc) => {
     const option = {
         method: "POST",
         headers: {
-            Authorization:
-                req.session.tokenType + " " + req.session.accessToken,
+            Authorization: sessionManager.get(req.session, "accessToken"),
             "Content-Type": "application/json",
         },
         body: JSON.stringify(params),
     };
 
     return fetch(
-        spotify_api_uri + "/users/" + req.session.userId + "/playlists",
+        spotify_api_uri +
+            "/users/" +
+            sessionManager.get(req.session, "userId") +
+            "/playlists",
         option
     )
         .then((r) => {
             if (r.ok) {
                 return r.json();
-            } else if (tryRefresh && r.status === "401") {
-                console.log("access token expired, attempting refresh");
-
-                /*refreshToken(req, res, (rq, rs) =>
-                    currentPlayCallback(false, rq, rs, this.userId, this.quizName, this.quizDesc, this.songList)
-                ).bind(this);*/
-                return { error: "access token expired" };
             }
 
             throw new Error(
@@ -287,7 +270,7 @@ const createPlayList = (tryRefresh, req, res, quiz, quizDesc) => {
             );
         })
         .then((r) => {
-            console.log("[SPOTIFY] Created a playlist from Quiz: %s", quiz._id);
+            console.log("[SPOTIFY] Created playlist from Quiz: %s", quiz._id);
             return {
                 id: r.id,
                 name: r.name,
@@ -305,8 +288,7 @@ const populatePlayList = (tryRefresh, req, res, playlist, quiz) => {
     const option = {
         method: "POST",
         headers: {
-            Authorization:
-                req.session.tokenType + " " + req.session.accessToken,
+            Authorization: sessionManager.get(req.session, "accessToken"),
             "Content-Type": "application/json",
         },
         body: JSON.stringify(params),
@@ -333,6 +315,14 @@ const populatePlayList = (tryRefresh, req, res, playlist, quiz) => {
     });
 };
 
+const checkAccessToken = async (req, res) => {
+    if (sessionManager.get(req.session, "tokenExpiration") < new Date()) {
+        return refreshToken(req, res);
+    }
+
+    return {};
+};
+
 router.get("/login", loginHandler);
 
 router.get("/logincb", loginCbHandler);
@@ -344,8 +334,12 @@ router.get("/current_play", function (req, res) {
         return;
     }
 
-    console.log("getting current playback with ", res.locals.accessToken);
-    currentPlayCallback(true, req, res);
+    checkAccessToken(req, res)
+        .then(() => currentPlayCallback(req.session, res))
+        .catch((e) => {
+            console.log("caught error while getting current play");
+            res.status(500).send();
+        });
 });
 
 //TODO router.get("/refresh_token", refreshToken);
@@ -357,16 +351,12 @@ router.post("/create_playlist", async function (req, res) {
         return;
     }
 
-    createPlayList(true, req, res, req.body, "Playlist from MusiQ")
-        .then((r) => {
-            return Promise.all([
-                r,
-                populatePlayList(true, req, res, r, req.body),
-            ]);
-        })
-        .then((r) => {
-            res.status(200).send({ name: r[0].name, link: r[0].link });
-        })
+    checkAccessToken(req, res)
+        .then(() => createPlayList(req, res, req.body, "Playlist from MusiQ"))
+        .then((r) =>
+            Promise.all([r, populatePlayList(true, req, res, r, req.body)])
+        )
+        .then((r) => res.status(200).send({ name: r[0].name, link: r[0].link }))
         .catch((e) => {
             //TODO make custom error to store status and message
             res.status(500).send({ error: e });

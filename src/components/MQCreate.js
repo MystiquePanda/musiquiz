@@ -6,6 +6,7 @@ import MQCreateAddQuestion from "components/MQCreateAddQuestion";
 import InplaceEditInput from "components/InplaceEditInput";
 import Question from "components/Question";
 import MQuizStyles from "components/MQuizStyles";
+import { BsCloudUpload, BsX } from "react-icons/bs";
 
 function generateRandomQuizName() {
     return "New Quiz";
@@ -38,7 +39,7 @@ class MQCreate extends Component {
     };
 
     handleQuestionUpdate = (i, k, v) => {
-        console.log("parent need to update for ", i, ".", k, ": ", v);
+        //console.log("parent need to update for ", i, ".", k, ": ", v);
 
         this.setState((prev) => ({
             questions: prev.questions.map((q) => {
@@ -51,7 +52,7 @@ class MQCreate extends Component {
     };
 
     handleQuestionDelete = (i) => {
-        console.log("delete id ", i, " from ", this.state.questions);
+        //console.log("delete id ", i, " from ", this.state.questions);
 
         this.setState((prev) => {
             const qs = prev.questions.filter((q) => q.id !== i);
@@ -66,7 +67,7 @@ class MQCreate extends Component {
         });
     };
 
-    handleSave = (e) => {
+    handleSave = () => {
         const quiz = {
             name: this.state.quizName,
             questions: this.state.questions,
@@ -152,7 +153,7 @@ class MQCreate extends Component {
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={this.handleQuestionAdd}>
-                        <Accordion activeKey={this.state.activeQId}>
+                        <Accordion activeKey={this.state.activeQId.toString()}>
                             {createQuestionList()}
                             <MQCreateAddQuestion
                                 disableAdd={
@@ -173,7 +174,7 @@ class MQCreate extends Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={this.handleClose}>
-                        Close
+                        <BsX />
                     </Button>
                     <Button
                         variant="primary"
@@ -184,7 +185,7 @@ class MQCreate extends Component {
                         }
                         onClick={this.handleSave}
                     >
-                        Save
+                        <BsCloudUpload />
                     </Button>
                 </Modal.Footer>
             </Modal>

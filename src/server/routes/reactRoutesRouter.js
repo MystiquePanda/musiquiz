@@ -2,15 +2,20 @@ import express from "express";
 import { serverRenderer } from "renderers/serverRender";
 import { matchPath } from "react-router-dom";
 import { serverRoutes } from "shared/serverRoutes";
-
+import sessionManager from "server/session";
 const router = express.Router();
 
 function redirectToLink(req, res, next) {
-    const activeRoute =
-        serverRoutes.find((r) => matchPath(req.url, r)) || {};
+    const activeRoute = serverRoutes.find((r) => matchPath(req.url, r)) || {};
 
-    if (activeRoute.isProtected && !req.session.accessToken) {
-        console.log("[REACT ROUTE] Redirecting to Door for accessing %s without access", req.url);
+    if (
+        activeRoute.isProtected &&
+        !sessionManager.get(req.session, "accessToken")
+    ) {
+        console.log(
+            "[REACT ROUTE] Redirecting to Door for accessing %s without access",
+            req.url
+        );
         res.redirect("/door");
     } else {
         next();

@@ -11,6 +11,7 @@ import connect from "connect-mongodb-session";
 import spotifyRouter from "server/routes/spotify.js";
 import dbRouter from "server/routes/db.js";
 import reactRoutesRouter from "server/routes/reactRoutesRouter.js";
+import sessionManager from "server/session";
 
 const app = express();
 //app.enable('trust proxy');
@@ -67,7 +68,11 @@ if (config.isDev) {
 }
 
 app.use((req, res, next) => {
-    if (!(req.session && req.session.accessToken && req.session.refreshToken)) {
+    if (
+        !(
+            req.session &&
+            sessionManager.isSet(req.session, "accessToken")        )
+    ) {
         // TODO redirect to main page?
         console.log(
             "Request %s DOESN'T have access set. %s",
@@ -79,12 +84,7 @@ app.use((req, res, next) => {
     }
 
     console.log("Request %s have session set. %s", req.url, req.session);
-    res.locals.accessToken = req.session.accessToken;
-    res.locals.refreshToken = req.session.refreshToken;
-    res.locals.musicService = req.session.musicService;
-    res.locals.userId = req.session.userId;
-    res.locals.userName = req.session.userName;
-    res.locals.userEmail = req.session.userEmail;
+    sessionManager.set(res.locals,req.session)
     next();
 });
 
