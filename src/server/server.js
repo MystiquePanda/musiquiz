@@ -7,13 +7,20 @@ import cookieParser from "cookie-parser";
 import config from "server/config";
 
 import session from "express-session";
-
+import connect from "connect-mongodb-session";
 import spotifyRouter from "server/routes/spotify.js";
 import dbRouter from "server/routes/db.js";
 import reactRoutesRouter from "server/routes/reactRoutesRouter.js";
+import sessionManager from "server/session";
 
 const app = express();
 //app.enable('trust proxy');
+const sessionStore = new connect(session)({
+    uri: config.dbConnStr,
+    databaseName: "musiquiz",
+    expires: config.sessLifetime,
+    collection: "sessions",
+});
 
 app.use(cors());
 
@@ -28,17 +35,22 @@ app.use(cookieParser());
 
 app.locals.serialize = serialize;
 
+sessionStore.on("error", function (error) {
+    console.log(error);
+});
+
 app.use(
     session({
-        name: config.SESS_NAME,
-        resave: false,
-        saveUninitialized: false,
-        secret: config.SESS_SECRET,
+        name: config.sessName,
+        resave: true,
+        saveUninitialized: true,
+        secret: config.sessSecret,
         cookie: {
-            maxAge: config.SESS_LIFETIME,
+            maxAge: config.sessLifetime,
             sameSite: true,
             secure: false,
         },
+        store: sessionStore,
     })
 );
 
@@ -56,17 +68,23 @@ if (config.isDev) {
 }
 
 app.use((req, res, next) => {
-    if (!(req.session && req.session.accessToken && req.session.refreshToken)) {
+    if (
+        !(
+            req.session &&
+            sessionManager.isSet(req.session, "accessToken")        )
+    ) {
         // TODO redirect to main page?
-        console.log("Request %s DOESN'T have access set. %s", req.url, req.session);
+        console.log(
+            "Request %s DOESN'T have access set. %s",
+            req.url,
+            req.session
+        );
         next();
         return;
     }
 
     console.log("Request %s have session set. %s", req.url, req.session);
-    res.locals.accessToken = req.session.accessToken;
-    res.locals.refreshToken = req.session.refreshToken;
-    res.locals.musicService = req.session.musicService;
+    sessionManager.set(res.locals,req.session)
     next();
 });
 

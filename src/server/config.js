@@ -1,11 +1,15 @@
 const env = process ? process.env : "development";
-console.log(env);
+//console.debug(env);
 
 const port = env.PORT || 8080;
-const host = env.HOSTNAME || "0.0.0.0";
+const host = env.HOSTNAME || "192.168.8.92";
 const isDev = typeof env.NODE_ENV === "undefined" || env.NODE_ENV.trim() !== "production";
 const base = env.MQ_BASE_URI.trim() || "https://musiquiz.mystiquepanda.com";
+const mongoUser = env.MQ_MONGODB_USER.trim();
+const mongoPass = env.MQ_MONGODB_PASS.trim();
+const mongoCluster = env.MQ_MONGODB_CLUSTER.trim();
 
+//?retryWrites=true&w=majority
 module.exports = {
     port: port,
     host: host,
@@ -13,11 +17,15 @@ module.exports = {
     isBrowser: typeof window !== "undefined",
     baseURI: isDev ? "http://" + host + ":" + port : base,
     spotifySecret: env.MQ_SPOTIFY_SECRET.trim(),
+    spotifyClient: env.MQ_SPOTIFY_CLIENT.trim(),
+    dbConnBase:"mongodb+srv://"+mongoUser+":" +
+    mongoPass +
+    "@"+mongoCluster,
     dbConnStr:
-        "mongodb+srv://musiquiz_admin:" +
-        env.MQ_MONGODB_PASS.trim() +
-        "@cluster0-og4sd.mongodb.net/musiquiz?retryWrites=true&w=majority",
-    SESS_NAME: "session",
-    SESS_LIFETIME: 30 * 60 * 1000,
-    SESS_SECRET: env.MQ_SESS_SECRET.trim(),
+        "mongodb+srv://"+mongoUser+":" +
+        mongoPass +
+        "@"+mongoCluster+"/musiquiz",
+    sessName: "session",
+    sessLifetime: 5 * 24 * 60 * 60 * 1000,
+    sessSecret: env.MQ_SESS_SECRET.trim(),
 };

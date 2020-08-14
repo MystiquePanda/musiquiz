@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Form } from "react-bootstrap";
-import { GrEdit } from "react-icons/gr";
+import { BsPencil } from "react-icons/bs";
 
 const InplaceEditInput = (props) => {
     const { value, style, parentHandleChange } = props;
@@ -33,8 +33,6 @@ const InplaceEditInput = (props) => {
 
         if (key === "Escape") {
             e.preventDefault();
-
-            console.log("swallowed escape");
         }
     };
 
@@ -57,7 +55,7 @@ const InplaceEditInput = (props) => {
                     <label style={style} onClick={handleModeChange}>
                         {value}
                     </label>{"  "}
-                    <GrEdit style={{paddingBottom:"4%"}} onClick={handleModeChange} />
+                    <BsPencil style={Object.assign({paddingBottom:"4px"},style)} onClick={handleModeChange} />
                 </>
             )}
         </>

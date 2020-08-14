@@ -1,8 +1,8 @@
 const MQStyles = {
     createColor: "#3399cc",
     playColor: "#6633cc",
-    green: "#33cc66",
-    red: "#cc4033",
+    green: "#A4D8B1",
+    red: "#EA97A1",
 };
 
 export default MQStyles;

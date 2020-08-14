@@ -3,7 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import MQuizStyles from "components/MQuizStyles";
 import MQuizLookupById from "components/MQuizLookupById";
 import MQuizList from "components/MQuizList";
-
+import { BsX } from "react-icons/bs";
 export default function MQuizPicker(props) {
     const { handleClose } = props;
 
@@ -13,7 +13,8 @@ export default function MQuizPicker(props) {
                 style={{
                     paddingBottom: "8px",
                     paddingTop: "8px",
-                    color: MQuizStyles.playColor,
+                    color: "white",
+                    backgroundColor: MQuizStyles.playColor,
                 }}
             >
                 <Modal.Title>Pick a Quiz</Modal.Title>
@@ -34,7 +35,7 @@ export default function MQuizPicker(props) {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>
-                    Close
+                    <BsX />
                 </Button>
             </Modal.Footer>
         </>

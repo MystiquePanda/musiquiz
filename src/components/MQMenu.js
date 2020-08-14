@@ -1,18 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { NavLink, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Col, Row } from "react-bootstrap";
-import MusicServiceBar from "components/MusicServiceBar";
 import "components/MQPlay";
 import "components/MQCreate";
 
 const MQMenu = (props) => {
-    const musicService = props.musicService || "spotify";
-
     console.log("MQMenu ", props);
 
     return (
-        <Row className="justify-content-center" style={{ margin: "auto" }}>
+        <>
             <Col xs="4">
                 <Link to="/create">
                     <img
@@ -38,15 +35,9 @@ const MQMenu = (props) => {
                         }}
                     />
                 </Link>
-
-                {/*<MusicServiceBar musicService={musicService} />*/}
             </Col>
-        </Row>
+        </>
     );
-};
-
-MQMenu.propTypes = {
-    musicService: PropTypes.string,
 };
 
 export default MQMenu;
