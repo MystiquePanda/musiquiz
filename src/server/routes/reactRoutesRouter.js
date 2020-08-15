@@ -8,7 +8,7 @@ const router = express.Router();
 function redirectToLink(req, res, next) {
     const activeRoute = serverRoutes.find((r) => matchPath(req.url, r)) || {};
     if (
-        activeRoute.protected &&
+        activeRoute.isProtected &&
         !sessionManager.get(req.session, "accessToken")
     ) {
         console.log(
