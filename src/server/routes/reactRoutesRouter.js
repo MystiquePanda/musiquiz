@@ -7,15 +7,16 @@ const router = express.Router();
 
 function redirectToLink(req, res, next) {
     const activeRoute = serverRoutes.find((r) => matchPath(req.url, r)) || {};
-
     if (
-        activeRoute.isProtected &&
+        activeRoute.protected &&
         !sessionManager.get(req.session, "accessToken")
     ) {
         console.log(
             "[REACT ROUTE] Redirecting to Door for accessing %s without access",
             req.url
         );
+
+        sessionManager.set(req.session, { requestingURL: req.url });
         res.redirect("/door");
     } else {
         next();
@@ -43,6 +44,7 @@ router.get("/*", redirectToLink, async (req, res, next) => {
                 req.url
             );
             next();
+            return;
         }
         console.log("[REACT ROUTE] server route resolved: ", activeRoute);
 
