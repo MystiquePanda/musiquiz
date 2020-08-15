@@ -9,6 +9,7 @@ const sessionFields = {
     userEmail: { encrypt: true },
     userId: { encrypt: true },
     userScope: { encrypt: true },
+    requestingURL:{encrypt: false}
 };
 
 const setSessionFields = (session, o) => {

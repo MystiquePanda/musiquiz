@@ -100,11 +100,20 @@ function loginCbHandler(req, res) {
                 );
             })
             .then(async (r) => {
-                setMusicServiceAccess(r, req);
-                const user = await fetchMusciServiceAccount(req.session);
+                setMusicServiceAccess(r, req.session);
+
+                res.session =
+                    typeof res.session === "undefined"
+                        ? req.session
+                        : res.session;
+                
+                const user = await fetchMusciServiceAccount(res.session);
                 console.log("[SPOTIFY] received user info: ", user);
-                setMusicServiceUser(user, req);
-                res.redirect("/");
+                setMusicServiceUser(user, req.session);
+                
+
+                const url = sessionManager.get(req.session, "requestingURL");
+                res.redirect(typeof url !== "undefined" ? url : "/");
             })
             .catch((e) => {
                 console.log("Caught error", e);
@@ -136,19 +145,19 @@ function fetchMusciServiceAccount(session) {
     });
 }
 
-function setMusicServiceAccess(body, req) {
+function setMusicServiceAccess(body, session) {
     const e = new Date(Date.now());
     e.setHours(body.expires_in / 3600 + e.getHours());
 
-    sessionManager.set(req.session, {
+    sessionManager.set(session, {
         accessToken: body.token_type + " " + body.access_token,
         refreshToken: body.refresh_token,
         tokenExpiration: e,
     });
 }
 
-function setMusicServiceUser(user, req) {
-    sessionManager.set(req.session, {
+function setMusicServiceUser(user, session) {
+    sessionManager.set(session, {
         userName: user.display_name,
         userEmail: user.email,
         userId: user.id,

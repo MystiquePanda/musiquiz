@@ -68,23 +68,17 @@ if (config.isDev) {
 }
 
 app.use((req, res, next) => {
-    if (
-        !(
-            req.session &&
-            sessionManager.isSet(req.session, "accessToken")        )
-    ) {
-        // TODO redirect to main page?
-        console.log(
+    if (!(req.session && sessionManager.isSet(req.session, "accessToken"))) {
+        console.debug(
             "Request %s DOESN'T have access set. %s",
             req.url,
             req.session
         );
-        next();
-        return;
+    } else {
+        console.log("Request %s have session set. %s", req.url, req.session);
+        sessionManager.set(res.locals, req.session);
     }
 
-    console.log("Request %s have session set. %s", req.url, req.session);
-    sessionManager.set(res.locals,req.session)
     next();
 });
 
