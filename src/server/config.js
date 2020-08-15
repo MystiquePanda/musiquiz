@@ -1,9 +1,10 @@
 const env = process ? process.env : "development";
 //console.debug(env);
 
-const port = env.PORT || 8080;
-const host = env.HOSTNAME || "192.168.8.92";
 const isDev = typeof env.NODE_ENV === "undefined" || env.NODE_ENV.trim() !== "production";
+const port = env.PORT || 8080;
+const host = isDev ? "192.168.8.92" : "0.0.0.0";
+
 const base = env.MQ_BASE_URI.trim() || "https://musiquiz.mystiquepanda.com";
 const mongoUser = env.MQ_MONGODB_USER.trim();
 const mongoPass = env.MQ_MONGODB_PASS.trim();
