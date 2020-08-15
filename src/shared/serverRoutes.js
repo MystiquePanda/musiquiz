@@ -18,7 +18,7 @@ export const serverRoutes = [
     },
     {
         path: "/play/:id",
-        protected: true,
+        isProtected: true,
         exact: true,
         component: MQPlay,
         fetchInitialData: async (path = "") => {
