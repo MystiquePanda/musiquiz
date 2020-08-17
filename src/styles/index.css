@@ -1,13 +1,82 @@
 :root {
-  --color-main: #333;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
+    --color-main: #333;
+    --play-color: #3399cc;
+    --create-color: #6633cc;
+    --mq-green: #a4d8b1;
+    --mq-red: #ea97a1;
 }
 
 body {
-  color: var(--color-main);
+    color: var(--color-main);
+    font-family: "Arial Round MT Bold", Arial, Helvetica, sans-serif;
+}
+
+#root {
+    background-color: #f7f7f7;
+}
+
+.container {
+    background-color: white;
+
+    height: 95vh;
+    width: 95vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.container-body {
+    flex-direction: row;
+    margin: auto;
+}
+
+.play-color {
+    color: var(--play-color);
+}
+
+.play-bg {
+    background-color: var(--play-color);
+}
+
+.create-color {
+    color: var(--create-color);
+}
+
+.create-bg {
+    background-color: var(--create-color);
+}
+
+.small-logo {
+    height: 40px;
+    width: 40px;
+    padding: 10px;
+}
+
+.fit-to-container {
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.user-badge {
+    color: var(--create-color);
+    width: 40px;
+    height: 40px;
+    margin: 10px;
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.user-popover {
+    border: var(--create-color);
+}
+
+.popover-header {
+    background-color: var(--create-color);
+}
+
+.album-art-col {
+    display: inline-block;
+    padding: calc(0.375rem + 1px) 0px;
+    align-self: center;
 }

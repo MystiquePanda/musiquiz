@@ -23,7 +23,7 @@ const setSessionFields = (session, o) => {
             updated.push(f);
         }
     });
-    console.log("[SESSION] fields set: ", updated.toString());
+    console.debug("[SESSION] fields set: ", updated.toString());
 };
 
 const getSessionField = (session, f) => {

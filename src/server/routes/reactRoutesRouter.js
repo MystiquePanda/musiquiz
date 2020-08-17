@@ -23,6 +23,11 @@ function redirectToLink(req, res, next) {
     }
 }
 
+router.get("/logout", async (req, res) => {
+    req.session.destroy();
+    res.redirect("/door");
+});
+
 router.get("/*", redirectToLink, async (req, res, next) => {
     try {
         //const reqUrl = req.url.includes("?") ? req.url.split("?")[0] : req.url;

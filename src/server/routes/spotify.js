@@ -18,7 +18,7 @@ const token_auth =
     Buffer.from(config.spotifyClient + ":" + config.spotifySecret).toString(
         "base64"
     );
-const generateRandomString = function (length) {
+const generateRandomString = (length) => {
     let text = "";
     const possible =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -29,9 +29,56 @@ const generateRandomString = function (length) {
     return text;
 };
 
+function setMusicServiceAccess(session, access) {
+    const e = new Date(Date.now());
+    e.setHours(access.expires_in / 3600 + e.getHours());
+
+    sessionManager.set(session, {
+        accessToken: access.token_type + " " + access.access_token,
+        refreshToken: access.refresh_token,
+        tokenExpiration: e,
+    });
+}
+
+function setMusicServiceUser(session, user) {
+    sessionManager.set(session, {
+        userName: user.display_name,
+        userEmail: user.email,
+        userId: user.id,
+        userScope: user.scope,
+        musicService: "spotify",
+    });
+}
+
+function createErrorFromRes(r) {
+    const e = new Error(r.status + ":" + r.statusText);
+    e.status = r.status;
+    return e;
+}
+
+function getOptionWithAuth(session) {
+    return {
+        method: "GET",
+        headers: {
+            Authorization: sessionManager.get(session, "accessToken"),
+        },
+    };
+}
+
+function postOptionWithAuth(session, params) {
+    return {
+        method: "POST",
+        headers: {
+            Authorization: sessionManager.get(session, "accessToken"),
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(params),
+    };
+}
+
 function loginHandler(req, res) {
     const state = generateRandomString(16);
-    console.log("[SPOTIFY] login:state:%s > %s", state_key, state);
+    console.debug("[SPOTIFY] login:state:%s > %s", state_key, state);
     res.cookie(state_key, state);
 
     const scope =
@@ -54,8 +101,8 @@ function loginCbHandler(req, res) {
     const state = req.query.state || null;
     const storedState = req.cookies ? req.cookies[state_key] : null;
 
-    console.log("[SPOTIFY] logincb:state:%s > %s", state_key, state);
-    console.log(
+    console.debug("[SPOTIFY] logincb:state:%s > %s", state_key, state);
+    console.debug(
         "[SPOTIFY] logincb:storedState:%s > %s",
         state_key,
         storedState
@@ -100,17 +147,16 @@ function loginCbHandler(req, res) {
                 );
             })
             .then(async (r) => {
-                setMusicServiceAccess(r, req.session);
+                setMusicServiceAccess(req.session, r);
 
                 res.session =
                     typeof res.session === "undefined"
                         ? req.session
                         : res.session;
-                
+
                 const user = await fetchMusciServiceAccount(res.session);
                 console.log("[SPOTIFY] received user info: ", user);
-                setMusicServiceUser(user, req.session);
-                
+                setMusicServiceUser(req.session, user);
 
                 const url = sessionManager.get(req.session, "requestingURL");
                 res.redirect(typeof url !== "undefined" ? url : "/");
@@ -127,48 +173,22 @@ function loginCbHandler(req, res) {
     }
 }
 
-function fetchMusciServiceAccount(session) {
-    const option = {
-        method: "GET",
-        headers: {
-            Authorization: sessionManager.get(session, "accessToken"),
-        },
-    };
+const checkAccessToken = async (req, res) => {
+    if (!res.locals.accessToken) {
+        console.error("doesn't have access to do this. ");
+        res.status(401).send();
+        return;
+    }
 
-    return fetch(spotify_api_uri + "/me", option).then((r) => {
-        if (r.ok) {
-            return r.json();
-        }
-        throw new Error(
-            "Error fetching user information . " + r.status + ":" + r.statusText
-        );
-    });
-}
+    const now = new Date(Date.now());
+    if (sessionManager.get(req.session, "tokenExpiration") < now) {
+        return refreshAccess(req, res);
+    }
+};
 
-function setMusicServiceAccess(body, session) {
-    const e = new Date(Date.now());
-    e.setHours(body.expires_in / 3600 + e.getHours());
-
-    sessionManager.set(session, {
-        accessToken: body.token_type + " " + body.access_token,
-        refreshToken: body.refresh_token,
-        tokenExpiration: e,
-    });
-}
-
-function setMusicServiceUser(user, session) {
-    sessionManager.set(session, {
-        userName: user.display_name,
-        userEmail: user.email,
-        userId: user.id,
-        userScope: user.scope,
-        musicService: "spotify",
-    });
-}
-
-const refreshToken = (req, res) => {
+async function refreshAccess(req) {
     const session = req.session;
-    console.log(
+    console.debug(
         "[SPOTIFY] refreshing token using ",
         sessionManager.get(session, "refreshToken")
     );
@@ -190,35 +210,36 @@ const refreshToken = (req, res) => {
             if (r.ok) {
                 return r.json();
             }
-            throw new Error(
-                "Error refreshing access token. " +
-                    r.status +
-                    ":" +
-                    r.statusText
-            );
+
+            throw createErrorFromRes(r);
         })
-        .then(async (r) => {
-            setMusicServiceAccess(r, req);
-        });
-};
-
-const currentPlayCallback = (session, res) => {
-    const options = {
-        method: "GET",
-        headers: {
-            Authorization: sessionManager.get(session, "accessToken"),
-        },
-        compress: true,
-    };
-
-    fetch(spotify_api_uri + "/me/player/currently-playing", options)
         .then((r) => {
+            return setMusicServiceAccess(req.session, r);
+        });
+}
+
+async function fetchMusciServiceAccount(session) {
+    return fetch(spotify_api_uri + "/me", getOptionWithAuth(session)).then(
+        (r) => {
             if (r.ok) {
                 return r.json();
             }
-            const e = new Error(r.status + ":" + r.statusText);
-            e.status = r.status;
-            throw e;
+            throw createErrorFromRes(r, "Error fetching user information. ");
+        }
+    );
+}
+
+async function currentPlayHandler(session, res) {
+    return fetch(
+        spotify_api_uri + "/me/player/currently-playing",
+        getOptionWithAuth(session)
+    )
+        .then((r) => {
+            if (r.ok && r.status === 200) {
+                return r.json();
+            }
+
+            throw createErrorFromRes(r);
         })
         .then((r) => {
             const track = r.item.name;
@@ -241,42 +262,31 @@ const currentPlayCallback = (session, res) => {
             });
         })
         .catch((e) => {
-            console.log("[SPOTIFY] error ", e);
-            res.status(e.status).send();
+            console.error("[SPOTIFY] error ", e);
+            res.status(e.status).send({ error: e.statusText });
         });
-};
+}
 
-const createPlayList = (req, res, quiz, quizDesc) => {
+async function createPlayList(session, quiz, quizDesc) {
     const params = {
         name: "MusiQ-" + quiz.name,
         description: quizDesc,
         public: false,
     };
 
-    const option = {
-        method: "POST",
-        headers: {
-            Authorization: sessionManager.get(req.session, "accessToken"),
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
-    };
-
     return fetch(
-        spotify_api_uri +
-            "/users/" +
-            sessionManager.get(req.session, "userId") +
-            "/playlists",
-        option
+        `${spotify_api_uri}/users/${sessionManager.get(
+            session,
+            "userId"
+        )}/playlists`,
+        postOptionWithAuth(session, params)
     )
         .then((r) => {
             if (r.ok) {
                 return r.json();
             }
 
-            throw new Error(
-                "Error creating playlist. " + r.status + ":" + r.statusText
-            );
+            throw createErrorFromRes(r, "Error creating playlist. ");
         })
         .then((r) => {
             console.log("[SPOTIFY] Created playlist from Quiz: %s", quiz._id);
@@ -287,85 +297,48 @@ const createPlayList = (req, res, quiz, quizDesc) => {
                 res: r,
             };
         });
-};
+}
 
-const populatePlayList = (tryRefresh, req, res, playlist, quiz) => {
+async function populatePlayList(session, playlist, quiz) {
     const params = {
         uris: quiz.questions.map((q) => q.answer.uri),
     };
 
-    const option = {
-        method: "POST",
-        headers: {
-            Authorization: sessionManager.get(req.session, "accessToken"),
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
-    };
-
+    console.log("populating playlist with ", quiz);
     return fetch(
         spotify_api_uri + "/playlists/" + playlist.id + "/tracks",
-        option
+        postOptionWithAuth(session, params)
     ).then((r) => {
         if (r.ok) {
             return r.json();
-        } else if (tryRefresh && r.status === "401") {
-            console.log("access token expired, attempting refresh");
-
-            /*refreshToken(req, res, (rq, rs) =>
-                    currentPlayCallback(false, rq, rs, this.userId, this.quizName, this.quizDesc, this.songList)
-                ).bind(this);*/
-            return { error: "access token expired" };
         }
 
-        throw new Error(
-            "Error populating playlist. " + r.status + ":" + r.statusText
-        );
+        throw createErrorFromRes(r, "Error populating playlist,");
     });
-};
-
-const checkAccessToken = async (req, res) => {
-    if (sessionManager.get(req.session, "tokenExpiration") < new Date()) {
-        return refreshToken(req, res);
-    }
-
-    return {};
-};
+}
 
 router.get("/login", loginHandler);
 
 router.get("/logincb", loginCbHandler);
 
 router.get("/current_play", function (req, res) {
-    if (!res.locals.accessToken) {
-        console.log("doesn't have access to do this. ");
-        res.status(401).send();
-        return;
-    }
-
     checkAccessToken(req, res)
-        .then(() => currentPlayCallback(req.session, res))
+        .then(() => currentPlayHandler(req.session, res))
         .catch((e) => {
-            console.log("caught error while getting current play");
-            res.status(500).send();
+            console.error("caught error while getting current play", e);
+            res.status(e.status ? e.status : 500).send();
         });
 });
 
-//TODO router.get("/refresh_token", refreshToken);
-
 router.post("/create_playlist", async function (req, res) {
-    if (!res.locals.accessToken) {
-        console.log("doesn't have access to do this. ");
-        res.status(401).send();
-        return;
-    }
-
     checkAccessToken(req, res)
-        .then(() => createPlayList(req, res, req.body, "Playlist from MusiQ"))
-        .then((r) =>
-            Promise.all([r, populatePlayList(true, req, res, r, req.body)])
+        .then(() =>
+            createPlayList(req.session, req.body, "Playlist from MusiQ")
         )
-        .then((r) => res.status(200).send({ name: r[0].name, link: r[0].link }))
+        .then((r) =>
+            Promise.all([r, populatePlayList(req.session, r, req.body)])
+        )
+        .then((r) => res.send({ name: r[0].name, link: r[0].link }))
         .catch((e) => {
             //TODO make custom error to store status and message
             res.status(500).send({ error: e });

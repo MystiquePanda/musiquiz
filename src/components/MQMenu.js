@@ -1,42 +1,34 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Col, Row } from "react-bootstrap";
+import { Col,Row } from "react-bootstrap";
 import "components/MQPlay";
 import "components/MQCreate";
 
-const MQMenu = (props) => {
-    console.log("MQMenu ", props);
-
+const MQMenu = () => {
     return (
-        <>
-            <Col xs="4">
+        <Row>
+            <Col xs={1}/>
+            <Col xs={4}>
                 <Link to="/create">
                     <img
                         src="images/logo-musiQuiz-create.png"
                         alt="musiQuiz create logo"
-                        style={{
-                            height: "100%",
-                            width: "100%",
-                            padding: "15%",
-                        }}
+                        className="fit-to-container"
                     />
                 </Link>
             </Col>
-            <Col xs="4">
+            <Col xs={2}/>
+            <Col xs={4}>
                 <Link to="/play">
                     <img
                         src="images/logo-musiQuiz-play.png"
                         alt="musiQuiz Play logo"
-                        style={{
-                            height: "100%",
-                            width: "100%",
-                            padding: "15%",
-                        }}
+                        className="fit-to-container"
                     />
                 </Link>
             </Col>
-        </>
+            <Col xs={1}/>
+        </Row>
     );
 };
 
