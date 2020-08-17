@@ -3,7 +3,7 @@ import { Form } from "react-bootstrap";
 import { BsPencil } from "react-icons/bs";
 
 const InplaceEditInput = (props) => {
-    const { value, style, parentHandleChange } = props;
+    const { value, style, onChange } = props;
     const [editing, setEditing] = useState(false);
     const inputRef = useRef(null);
 
@@ -43,7 +43,7 @@ const InplaceEditInput = (props) => {
                     id="input"
                     ref={inputRef}
                     value={value}
-                    onChange={parentHandleChange}
+                    onChange={onChange}
                     style={style}
                     onBlur={() => setEditing(false)}
                     onKeyDown={handleKeyDown}
@@ -54,8 +54,15 @@ const InplaceEditInput = (props) => {
                 <>
                     <label style={style} onClick={handleModeChange}>
                         {value}
-                    </label>{"  "}
-                    <BsPencil style={Object.assign({paddingBottom:"4px"},style)} onClick={handleModeChange} />
+                    </label>
+
+                    <BsPencil
+                        style={Object.assign(
+                            { paddingBottom: "4px", paddingLeft: "5px" },
+                            style
+                        )}
+                        onClick={handleModeChange}
+                    />
                 </>
             )}
         </>

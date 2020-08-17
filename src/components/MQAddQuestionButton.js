@@ -3,12 +3,11 @@ import { Card, Button } from "react-bootstrap";
 import { BsFillPlusCircleFill } from "react-icons/bs";
 
 const MQCreateAddQuestion = (props) => {
-
-    const handleClick = (e)=> {
-        if ( props.disableAdd ){
+    const handleClick = (e) => {
+        if (props.disableAdd) {
             e.preventDefault();
         }
-    }
+    };
 
     return (
         <Card>
@@ -16,15 +15,15 @@ const MQCreateAddQuestion = (props) => {
                 as={Button}
                 type="submit"
                 active
-                style={{ textAlign: "center" }}
-                onClick = {handleClick}
+                style={{ textAlign: "center", backgroundColor:"var(--create-color)" }}
+                onClick={handleClick}
             >
                 {props.errorMessage ? (
-                    <label className="text-muted">
-                        {props.errorMessage}
-                    </label>
+                    <label className="text-muted">{props.errorMessage}</label>
                 ) : (
-                    <BsFillPlusCircleFill className={props.disableAdd ? "text-muted":undefined}/>
+                    <BsFillPlusCircleFill
+                        className={props.disableAdd ? "text-muted" : undefined}
+                    />
                 )}
             </Card.Header>
         </Card>

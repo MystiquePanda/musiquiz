@@ -5,17 +5,24 @@ import { BsTrashFill } from "react-icons/bs";
 import CurrentPlay from "components/CurrentPlay";
 import { GiSoundWaves } from "react-icons/gi";
 import Question from "components/Question";
-import MQuizStyles from "components/MQuizStyles";
 
-const MQCreateQuestionForm = (props) => {
+const MQQuestionForm = (props) => {
     const [question, setQuestion] = useState(props.question);
     const [matchLevel, setMatchLevel] = useState(props.level);
-    const { id, enableDelete, musicService, handleAccordion } = props;
-    const { editMode } = props;
-
+    const {
+        id,
+        enableDelete,
+        musicService,
+        onAccordionClick,
+        onQuestionDelete,
+        setParentQuestion,
+        editMode,
+        answer
+    } = props;
+    const questionDisplay =
+        !editMode || question === "" ? "Question " + (id + 1) : question;
     const handleQuestionChange = (e) => {
         const ele = e.target;
-
         //use scroll top to determine if space is enough
         const t = ele.scrollTop;
         ele.scrollTop = 0;
@@ -23,24 +30,24 @@ const MQCreateQuestionForm = (props) => {
             ele.style.height = ele.offsetHeight + t + t + "px";
         }
 
-        // update values
         setQuestion(ele.value);
-        props.setParentQuestion("question", ele.value);
+        setParentQuestion("question", ele.value);
     };
 
     const handleDeleteQuestion = (e) => {
         e.stopPropagation();
-        props.handleQuestionDelete(id);
+        onQuestionDelete(id);
     };
 
     const handleAnswerChange = (a) => {
-        props.setParentQuestion(editMode ? "answer" : "response", a);
+        console.log("sending ",(editMode ? "answer" : "response"),a)
+        setParentQuestion(editMode ? "answer" : "response", a);
     };
 
     const handleMatchLevelChange = (e) => {
         const l = Question.matchLevels.slice(0, e.target.value);
         setMatchLevel(l);
-        props.setParentQuestion("level", l);
+        setParentQuestion("level", l);
     };
 
     return (
@@ -54,16 +61,14 @@ const MQCreateQuestionForm = (props) => {
                     background:
                         typeof props.background === "undefined"
                             ? editMode
-                                ? MQuizStyles.playColor
-                                : MQuizStyles.createColor
+                                ? "var(--create-color)"
+                                : "var(--play-color)"
                             : props.background,
                     color: "white",
                 }}
-                onClick={handleAccordion}
+                onClick={onAccordionClick}
             >
-                {!editMode || question === ""
-                    ? "Question " + (id + 1)
-                    : question}
+                {questionDisplay}
                 {enableDelete && editMode ? (
                     <BsTrashFill
                         onClick={handleDeleteQuestion}
@@ -107,7 +112,9 @@ const MQCreateQuestionForm = (props) => {
                         <CurrentPlay
                             name="answer"
                             label={<GiSoundWaves />}
-                            updateParent={handleAnswerChange}
+                            musicService={musicService}
+                            music={answer}
+                            onChange={handleAnswerChange}
                         />
                     </Form.Group>
 
@@ -137,4 +144,4 @@ const MQCreateQuestionForm = (props) => {
     );
 };
 
-export default MQCreateQuestionForm;
+export default MQQuestionForm;

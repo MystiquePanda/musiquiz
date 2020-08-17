@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { Modal, Button, Accordion, Form } from "react-bootstrap";
-import MQCreateQuestionForm from "components/MQCreateQuestionForm";
-import MQCreateAddQuestion from "components/MQCreateAddQuestion";
+import MQQuestionForm from "components/MQQuestionForm";
+import MQAddQuestionButton from "components/MQAddQuestionButton";
 import InplaceEditInput from "components/InplaceEditInput";
 import Question from "components/Question";
-import MQuizStyles from "components/MQuizStyles";
 import { BsCloudUpload, BsX } from "react-icons/bs";
 
-function generateRandomQuizName() {
+const generateRandomQuizName = () => {
+    //TODO something like Docker's container name
     return "New Quiz";
-}
+};
 
 class MQCreate extends Component {
     state = {
@@ -39,8 +39,6 @@ class MQCreate extends Component {
     };
 
     handleQuestionUpdate = (i, k, v) => {
-        //console.log("parent need to update for ", i, ".", k, ": ", v);
-
         this.setState((prev) => ({
             questions: prev.questions.map((q) => {
                 if (q.id === i) {
@@ -52,8 +50,6 @@ class MQCreate extends Component {
     };
 
     handleQuestionDelete = (i) => {
-        //console.log("delete id ", i, " from ", this.state.questions);
-
         this.setState((prev) => {
             const qs = prev.questions.filter((q) => q.id !== i);
 
@@ -86,7 +82,7 @@ class MQCreate extends Component {
             body: JSON.stringify(quiz),
         };
 
-        console.log("saving questions:", quiz);
+        console.debug("saving questions:", quiz);
         return fetch("/db/musiquiz/create/", args)
             .then((res) => {
                 console.log(res);
@@ -100,74 +96,76 @@ class MQCreate extends Component {
     };
 
     handleClose = () => {
-        this.props.history.goBack();
+        this.props.history.push("/");
     };
 
     handleQuestionAccordion = (e) => {
         this.setState({ activeQId: e });
     };
 
-    lastQuestionCompleted = (q) => {
+    questionCompleted = (q) => {
         return q.question.trim().length > 0 && Object.keys(q.answer).length > 0;
     };
 
     render() {
         const { maxQNum, quizName, questions } = this.state;
-
-        const createQuestionList = () => {
-            return questions.map((q) => (
-                <MQCreateQuestionForm
-                    editMode
-                    key={q.id}
-                    id={q.id}
-                    question={q.question}
-                    answer={q.answer}
-                    level={q.level}
-                    musicService="spotify"
-                    handleQuestionDelete={this.handleQuestionDelete}
-                    handleAccordion={() => this.handleQuestionAccordion(q.id)}
-                    {...this.props}
-                    setParentQuestion={(k, v) =>
-                        this.handleQuestionUpdate(q.id, k, v)
-                    }
-                    enableDelete={questions.length > 1}
-                />
-            ));
-        };
+        const { musicService } = this.props;
+        const isFull = questions.length === maxQNum;
+        const lastQuestionCompleted = this.questionCompleted(
+            questions[questions.length - 1]
+        );
+        const MQQuestionList = () => (
+            <>
+                {questions.map((q) => (
+                    <MQQuestionForm
+                        editMode
+                        key={q.id}
+                        id={q.id}
+                        question={q.question}
+                        answer={q.answer}
+                        level={q.level}
+                        musicService={musicService}
+                        onQuestionDelete={this.handleQuestionDelete}
+                        onAccordionClick={() => this.handleQuestionAccordion(q.id)}
+                        {...this.props}
+                        setParentQuestion={(k, v) =>
+                            this.handleQuestionUpdate(q.id, k, v)
+                        }
+                        enableDelete={questions.length > 1}
+                    />
+                ))}
+            </>
+        );
 
         return (
             <Modal show onHide={this.handleClose} keyboard={false}>
                 <Modal.Header
-                    style={{ paddingBottom: "8px", paddingTop: "8px" }}
+                    style={{
+                        paddingTop: "7px",
+                        paddingBottom: "7px",
+                        color:"white",
+                        backgroundColor: "var(--create-color)",
+                    }}
                 >
                     <Modal.Title>
                         <InplaceEditInput
                             value={quizName}
-                            style={{
-                                margin: "0px",
-                                color: MQuizStyles.playColor,
-                            }}
-                            parentHandleChange={this.handleQuizNameChange}
+                            onChange={this.handleQuizNameChange}
                         ></InplaceEditInput>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={this.handleQuestionAdd}>
                         <Accordion activeKey={this.state.activeQId.toString()}>
-                            {createQuestionList()}
-                            <MQCreateAddQuestion
-                                disableAdd={
-                                    questions.length === maxQNum ||
-                                    !this.lastQuestionCompleted(
-                                        questions[questions.length - 1]
-                                    )
-                                }
+                            <MQQuestionList />
+                            <MQAddQuestionButton
+                                disableAdd={isFull || !lastQuestionCompleted}
                                 errorMessage={
-                                    questions.length === maxQNum
+                                    isFull
                                         ? "maximum number of questions reached"
                                         : undefined
                                 }
-                                musicService="spotify"
+                                musicService={musicService}
                             />
                         </Accordion>
                     </Form>
@@ -178,11 +176,7 @@ class MQCreate extends Component {
                     </Button>
                     <Button
                         variant="primary"
-                        disabled={
-                            !this.lastQuestionCompleted(
-                                questions[questions.length - 1]
-                            )
-                        }
+                        disabled={!lastQuestionCompleted}
                         onClick={this.handleSave}
                     >
                         <BsCloudUpload />

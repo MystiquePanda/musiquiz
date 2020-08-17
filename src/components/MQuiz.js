@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { Form, Modal, Accordion, Button, Alert } from "react-bootstrap";
-import MQuizStyles from "components/MQuizStyles.js";
-import MQCreateQuestionForm from "components/MQCreateQuestionForm.js";
+import MQQuestionForm from "components/MQQuestionForm.js";
 import MusicServices from "components/MusicServices";
 import TooltipButton from "components/TooltipButton";
 import { BsMusicNoteList, BsX, BsCheckCircle } from "react-icons/bs";
 
 export default function MQuiz(props) {
-    const { handleClose } = props;
+    const { handleClose, musicService, quiz } = props;
     const [activeQId, setActiveQId] = useState(0);
-    const [quiz, setQuiz] = useState(props.quiz);
+    const [questions, setQuestions] = useState(quiz.questions);
     const [answeredAll, setAnsweredAll] = useState(false);
     const [checked, setChecked] = useState(false);
     const [playlist, setPlaylist] = useState(undefined);
+
     const checkAnswer = (q) => {
         return q.level.every(
             (l) => JSON.stringify(q.response[l]) === JSON.stringify(q.answer[l])
@@ -21,13 +21,12 @@ export default function MQuiz(props) {
 
     const handleSubmit = () => {
         setChecked(true);
-        setQuiz((prev) => {
-            prev.questions = prev.questions.map((q) => {
+        setQuestions((prev) =>
+            prev.map((q) => {
                 q.correct = checkAnswer(q);
                 return q;
-            });
-            return prev;
-        });
+            })
+        );
     };
 
     const handlePlaylistCreation = () => {
@@ -61,7 +60,7 @@ export default function MQuiz(props) {
                 });
             })
             .catch((e) => {
-                console.log("failed to create playlist", e);
+                console.error("failed to create playlist", e);
                 setPlaylist({
                     error: e,
                     header: "This is embarassing...",
@@ -73,53 +72,60 @@ export default function MQuiz(props) {
     };
 
     const handleQuestionUpdate = (i, k, v) => {
-        //console.debug("[MQuiz] Questions update for ", i, ".", k, ": ", v);
+        console.debug("[MQuiz] Questions update for ", i, ".", k, ": ", v);
 
-        setQuiz((prev) => {
-            prev.questions = prev.questions.map((q) => {
+        setQuestions((prev) =>
+            prev.map((q) => {
                 if (q.id === i) {
                     q[k] = v;
                 }
                 return q;
-            });
-            return prev;
-        });
+            })
+        );
 
         setAnsweredAll(
-            quiz.questions.every((q) => typeof q.response !== "undefined")
+            questions.every((q) => typeof q.response !== "undefined")
         );
+
+        console.debug(questions);
     };
 
-    const createQuestionList = (questions) => {
-        return questions.map((q) => (
-            <MQCreateQuestionForm
-                key={q.id}
-                id={q.id}
-                question={q.question}
-                answer={q.answer}
-                level={q.level}
-                background={
-                    typeof q.correct === "undefined"
-                        ? undefined
-                        : q.correct
-                        ? MQuizStyles.green
-                        : MQuizStyles.red
-                }
-                musicService="spotify"
-                setParentQuestion={(k, v) => handleQuestionUpdate(q.id, k, v)}
-                handleAccordion={() => setActiveQId(q.id)}
-            />
-        ));
-    };
+    const MQQuestionList = () => (
+        <>
+            {questions.map((q) => {
+                console.log(q.response || {});
+                return (
+                    <MQQuestionForm
+                        key={q.id}
+                        id={q.id}
+                        question={q.question}
+                        answer={q.response || {}}
+                        background={
+                            typeof q.correct === "undefined"
+                                ? undefined
+                                : q.correct
+                                ? "var(--mq-green)"
+                                : "var(--mq-red)"
+                        }
+                        musicService={musicService}
+                        setParentQuestion={(k, v) =>
+                            handleQuestionUpdate(q.id, k, v)
+                        }
+                        onAccordionClick={() => setActiveQId(q.id)}
+                    />
+                );
+            })}
+        </>
+    );
 
     return (
         <>
             <Modal.Header
                 style={{
-                    paddingBottom: "8px",
-                    paddingTop: "8px",
+                    paddingTop: "7px",
+                    paddingBottom: "7px",
                     color: "white",
-                    backgroundColor: MQuizStyles.playColor,
+                    backgroundColor: "var(--play-color)",
                 }}
             >
                 <Modal.Title>{quiz.name}</Modal.Title>
@@ -127,7 +133,7 @@ export default function MQuiz(props) {
             <Modal.Body>
                 <Form>
                     <Accordion activeKey={activeQId.toString()}>
-                        {createQuestionList(quiz.questions)}
+                        <MQQuestionList />
                     </Accordion>
                 </Form>
             </Modal.Body>
@@ -157,11 +163,8 @@ export default function MQuiz(props) {
 
                         <label>
                             score:
-                            {quiz.questions.reduce(
-                                (accu, c) => accu + c.correct,
-                                0
-                            )}
-                            /{quiz.questions.length}
+                            {questions.reduce((accu, c) => accu + c.correct, 0)}
+                            /{questions.length}
                         </label>
                     </>
                 )}

@@ -4,11 +4,9 @@ import { Route, Switch } from "react-router-dom";
 import { Container, Row } from "react-bootstrap";
 
 import { clientRoutes } from "shared/routes";
-import MQUserBar from "components/MQUserBar";
+import MQUserBadge from "components/MQUserBadge";
 
 export default class App extends Component {
-    //TODO handle errors, check access_token validity
-
     constructor(props) {
         super(props);
         this.state = this.props;
@@ -16,34 +14,23 @@ export default class App extends Component {
         if (typeof window !== "undefined" && window.__INITIAL_DATA__) {
             this.state = window.__INITIAL_DATA__;
         }
-        console.log("[App.js] >>>> state", this.state);
+        console.debug("[App.js] >>>> state", this.state);
     }
 
     render() {
         const { userName, musicService } = this.state;
 
         return (
-            <Container
-                style={{
-                    height: "95vh",
-                    width: "95vw",
-                    overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                }}
-            >
-                <Row style={{ marginLeft: "auto", marginRight: "5px" }}>
+            <Container>
+                <Row>
                     {typeof userName !== "undefined" && (
-                        <MQUserBar
+                        <MQUserBadge
                             musicService={musicService}
                             user={{ userName: userName }}
                         />
                     )}
                 </Row>
-                <Row
-                    className="justify-content-center"
-                    style={{ flexDirection: "row", margin: "auto" }}
-                >
+                <Row className="justify-content-center container-body">
                     <Switch>
                         {clientRoutes.map(
                             ({ path, exact, component: C, ...rest }) => (

@@ -25,14 +25,12 @@ const TrackInfoDisplay = (props) => {
 };
 
 const CurrentPlay = (props) => {
-    const [data, setData] = useState({}); //TODO test content of data for required fields
+    const { musicService, onChange, music } = props;
     const [message, setMessage] = useState(props.message);
 
-    const handleClick = () => {
-        //TODO axios prob can build query string
-        fetch(MusicServices["spotify"].currentPlay)
+    const handleClick = () =>
+        fetch(MusicServices[musicService].currentPlay)
             .then((res) => {
-                console.log(res);
                 if (!res.ok || res.status === 204) {
                     const s = res.status;
                     let m = "";
@@ -53,20 +51,16 @@ const CurrentPlay = (props) => {
                 return res.json();
             })
             .then((data) => {
-                setMessage(undefined);
                 console.log("received data from music service: ", data);
-
-                setData(data);
-                props.updateParent(data);
+                onChange(data);
             })
             .catch((err) => {
-                console.log("need to handle error. ", err);
+                console.error("need to handle error. ", err);
                 setMessage({
                     variant: "danger",
                     msg: typeof err !== "string" ? err.toString() : err,
                 });
             });
-    };
 
     //TODO show spinning while waiting for server/API
 
@@ -87,28 +81,21 @@ const CurrentPlay = (props) => {
             </Button>
 
             <div style={{ display: "flex" }}>
-                <Col
-                    xs="3"
-                    style={{
-                        display: "inline-block",
-                        padding: "calc(.375rem + 1px) 0px",
-                        alignSelf: "center",
-                    }}
-                >
+                <Col xs="3" className="album-art-col">
                     <img
-                        src={data.artwork}
+                        src={music.artwork}
                         style={{
                             width: "100%",
                         }}
                     />
                 </Col>
                 <Col xs="9" style={{ display: "inline-block" }}>
-                    <TrackInfoDisplay label="Track" value={data.track} />
-                    <TrackInfoDisplay label="Album" value={data.album} />
-                    <TrackInfoDisplay label="Artist" value={data.artist} />
+                    <TrackInfoDisplay label="Track" value={music.track} />
+                    <TrackInfoDisplay label="Album" value={music.album} />
+                    <TrackInfoDisplay label="Artist" value={music.artist} />
                     <TrackInfoDisplay
                         label="Release"
-                        value={data.releaseDate}
+                        value={music.releaseDate}
                     />
                 </Col>
             </div>

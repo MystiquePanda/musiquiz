@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { Modal} from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import MQuizPicker from "components/MQuizPicker";
 import MQuiz from "components/MQuiz";
 
@@ -30,23 +30,32 @@ class MQPlay extends Component {
         this.state = {
             quiz: q,
             activeQId: 0,
+            show: true,
         };
     }
 
     handleClose = () => {
-        //TODO if in the middle warn first
-        this.props.history.goBack();
+        this.props.history.push("/");
     };
 
     render() {
         return (
-            <Modal show onHide={this.handleClose} keyboard={false}>
-                {typeof this.state.quiz !== "undefined" ? (
-                    <MQuiz quiz={this.state.quiz} handleClose={this.handleClose}></MQuiz>
-                ) : (
-                    <MQuizPicker size="5" handleClose={this.handleClose}></MQuizPicker>
-                )}
-            </Modal>
+            <div>
+                <Modal show onHide={this.handleClose} keyboard={false}>
+                    {typeof this.state.quiz !== "undefined" ? (
+                        <MQuiz
+                            quiz={this.state.quiz}
+                            handleClose={this.handleClose}
+                            musicService={this.props.musicService}
+                        ></MQuiz>
+                    ) : (
+                        <MQuizPicker
+                            size="5"
+                            handleClose={this.handleClose}
+                        ></MQuizPicker>
+                    )}
+                </Modal>
+            </div>
         );
     }
 }

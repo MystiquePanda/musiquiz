@@ -1,6 +1,5 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
-import MQuizStyles from "components/MQuizStyles";
 import MQuizLookupById from "components/MQuizLookupById";
 import MQuizList from "components/MQuizList";
 import { BsX } from "react-icons/bs";
@@ -14,7 +13,7 @@ export default function MQuizPicker(props) {
                     paddingBottom: "8px",
                     paddingTop: "8px",
                     color: "white",
-                    backgroundColor: MQuizStyles.playColor,
+                    backgroundColor: "var(--play-color)",
                 }}
             >
                 <Modal.Title>Pick a Quiz</Modal.Title>

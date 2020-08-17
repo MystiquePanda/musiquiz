@@ -1,49 +1,41 @@
 import React from "react";
-import { Row, Col, OverlayTrigger, Popover } from "react-bootstrap";
+import { Col, OverlayTrigger, Popover } from "react-bootstrap";
 import MusicServices from "components/MusicServices";
 
-const MQDoor = (props) => {
-    const service = "spotify";
-    const ms = MusicServices[service];
+const MusicServicePopover = (
+    <Popover id="musicServiceLinkTooltip">
+        <Popover.Content>
+            {Object.keys(MusicServices).map((s) => {
+                const ms = MusicServices[s];
+                return (
+                    <a key={s} href={ms.loginURL} style={{ color: ms.color }}>
+                        <img
+                            src={ms.logoSmall}
+                            className="small-logo"
+                            alt={s + " logo"}
+                        />
+                        Link {s} account to start
+                    </a>
+                );
+            })}
+        </Popover.Content>
+    </Popover>
+);
 
-    const MusicServicePopover = (
-        <Popover id="musicServiceLinkTooltip">
-            <Popover.Content>
-                <a href={ms.loginURL} style={{ color: ms.color }}>
-                    <img
-                        src={ms.logoSmall}
-                        alt={service + " logo"}
-                        style={{
-                            height: "40px",
-                            width: "40px",
-                            padding: "10px",
-                        }}
-                    />
-                    Link {service} to start
-                </a>
-            </Popover.Content>
-        </Popover>
-    );
-
-    return (
-        <Col xs="4" style={{ padding: 0 }}>
-            <OverlayTrigger
-                placement="bottom"
-                delay={{ show: 0, hide: 10000 }}
-                overlay={MusicServicePopover}
-            >
-                <img
-                    alt="musiQuiz logo"
-                    src="images/logo-musiQuiz.png"
-                    style={{
-                        padding: 0,
-                        height: "100%",
-                        width: "100%",
-                    }}
-                />
-            </OverlayTrigger>
-        </Col>
-    );
-};
+const MQDoor = () => (
+    <Col xs={4}>
+        <OverlayTrigger
+            placement="bottom"
+            delay={{ show: 0, hide: 10000 }}
+            overlay={MusicServicePopover}
+        >
+            <img
+                src="images/logo-musiQuiz.png"
+                className="fit-to-container"
+                alt="hover here"
+            />
+        </OverlayTrigger>
+    </Col>
+);
 
 export default MQDoor;
