@@ -39,6 +39,20 @@ sessionStore.on("error", function (error) {
     console.log("[SESSION STORE]", error);
 });
 
+app.use(
+    session({
+        name: config.sessName,
+        resave: false,
+        saveUninitialized: false,
+        secret: config.sessSecret,
+        cookie: {
+            maxAge: config.sessLifetime,
+            sameSite: false
+        },
+        store: sessionStore,
+    })
+);
+
 if (config.isDev) {
     app.locals.gVars = {
         main: ["main.css", "main.js"],
@@ -54,22 +68,6 @@ if (config.isDev) {
         console.error("Reactful did not find Webpack generated assets");
     }
 }
-
-app.use(
-    session({
-        name: config.sessName,
-        resave: false,
-        saveUninitialized: false,
-        secret: config.sessSecret,
-        cookie: {
-            maxAge: config.sessLifetime,
-            sameSite: false
-        },
-        store: sessionStore,
-    })
-);
-
-
 
 app.use((req, res, next) => {
     /*const oldRedirect = res.redirect;
