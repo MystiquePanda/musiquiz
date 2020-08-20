@@ -14,12 +14,12 @@ import reactRoutesRouter from "server/routes/reactRoutesRouter.js";
 import sessionManager from "server/session";
 
 const app = express();
-//app.enable('trust proxy');
-const sessionStore = new connect(session)({
+
+const sessionStore =new connect(session)({
     uri: config.dbConnStr,
     databaseName: "musiquiz",
     expires: config.sessLifetime,
-    collection: "sessions",
+    collection: config.isDev?"memory":"stack",
 });
 
 app.use(cors());
@@ -36,23 +36,8 @@ app.use(cookieParser());
 app.locals.serialize = serialize;
 
 sessionStore.on("error", function (error) {
-    console.log(error);
+    console.log("[SESSION STORE]", error);
 });
-
-app.use(
-    session({
-        name: config.sessName,
-        resave: true,
-        saveUninitialized: true,
-        secret: config.sessSecret,
-        cookie: {
-            maxAge: config.sessLifetime,
-            sameSite: true,
-            secure: false,
-        },
-        store: sessionStore,
-    })
-);
 
 if (config.isDev) {
     app.locals.gVars = {
@@ -60,6 +45,9 @@ if (config.isDev) {
         vendor: "vendor.js",
     };
 } else {
+    app.set('trust proxy', 1) // trust first proxy
+    session.cookie.secure = true // serve secure cookies
+
     try {
         app.locals.gVars = require("../../.reactful.json");
     } catch (err) {
@@ -67,18 +55,44 @@ if (config.isDev) {
     }
 }
 
+app.use(
+    session({
+        name: config.sessName,
+        resave: false,
+        saveUninitialized: false,
+        secret: config.sessSecret,
+        cookie: {
+            maxAge: config.sessLifetime,
+            sameSite: false
+        },
+        store: sessionStore,
+    })
+);
+
+
+
 app.use((req, res, next) => {
+    /*const oldRedirect = res.redirect;
+    res.redirect = function (...args) {
+      if (req.session) {
+       console.log("redirecting after saving...", req.sessionID, req.session) 
+
+        req.session.save(() => Reflect.apply(oldRedirect, this, args))
+      } else {
+        Reflect.apply(oldRedirect, this, args);
+      }
+    }*/
+
+    console.debug(">>>>>> INCOMING with session ID: ", req.sessionID, req.session)
     if (!(req.session && sessionManager.isSet(req.session, "accessToken"))) {
         console.debug(
-            "Request %s DOESN'T have access set. %s",
+            "Request %s DOESN'T have access set. ",
             req.url,
-            req.session
         );
     } else {
-        console.log("Request %s have session set. %s", req.url, req.session);
+        console.debug("Request %s have access set. ", req.url);
         sessionManager.set(res.locals, req.session);
     }
-
     next();
 });
 

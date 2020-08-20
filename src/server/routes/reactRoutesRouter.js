@@ -11,24 +11,19 @@ function redirectToLink(req, res, next) {
         activeRoute.isProtected &&
         !sessionManager.get(req.session, "accessToken")
     ) {
-        console.log(
+        console.debug(
             "[REACT ROUTE] Redirecting to Door for accessing %s without access",
             req.url
         );
 
         sessionManager.set(req.session, { requestingURL: req.url });
-        res.redirect("/door");
+        res.status(302).redirect("/door");
     } else {
         next();
     }
 }
 
-router.get("/logout", async (req, res) => {
-    req.session.destroy();
-    res.redirect("/door");
-});
-
-router.get("/*", redirectToLink, async (req, res, next) => {
+async function handleRouting(req, res, next) {
     try {
         //const reqUrl = req.url.includes("?") ? req.url.split("?")[0] : req.url;
         const reqQuery = new URLSearchParams(
@@ -44,14 +39,14 @@ router.get("/*", redirectToLink, async (req, res, next) => {
             Object.keys(activeRoute).length === 0 &&
             activeRoute.constructor === Object
         ) {
-            console.log(
+            console.debug(
                 "[REACT ROUTE] did not match a React Route for ",
                 req.url
             );
             next();
             return;
         }
-        console.log("[REACT ROUTE] server route resolved: ", activeRoute);
+        console.debug("[REACT ROUTE] server route resolved: ", activeRoute);
 
         const promise = activeRoute.fetchInitialData
             ? activeRoute.fetchInitialData(req.path)
@@ -60,7 +55,7 @@ router.get("/*", redirectToLink, async (req, res, next) => {
         const context = Object.assign(
             { reqQuery: reqQuery },
             await promise.then((data) => {
-                console.log(
+                console.debug(
                     "[REACT ROUTE] Fetching data from InitialDataFetch promise: ",
                     data
                 );
@@ -71,10 +66,16 @@ router.get("/*", redirectToLink, async (req, res, next) => {
         const vars = await serverRenderer(req, context);
         res.render("index", vars);
     } catch (err) {
-        //TODO prettier error
         console.error(err);
         res.status(500).send("Server error");
     }
+}
+
+router.get("/logout", async (req, res) => {
+    req.session.destroy();
+    res.status(302).redirect("/door");
 });
+
+router.get("/*", redirectToLink, handleRouting);
 
 module.exports = router;

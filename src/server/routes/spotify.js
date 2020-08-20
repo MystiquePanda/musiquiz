@@ -110,7 +110,7 @@ function loginCbHandler(req, res) {
 
     if (state === null || state !== storedState) {
         //TODO handle this error on UI side
-        res.redirect(
+        res.status(302).redirect(
             "/door?" +
                 querystring.stringify({
                     error: "state_mismatch",
@@ -149,21 +149,16 @@ function loginCbHandler(req, res) {
             .then(async (r) => {
                 setMusicServiceAccess(req.session, r);
 
-                res.session =
-                    typeof res.session === "undefined"
-                        ? req.session
-                        : res.session;
-
-                const user = await fetchMusciServiceAccount(res.session);
-                console.log("[SPOTIFY] received user info: ", user);
+                const user = await fetchMusciServiceAccount(req.session);
+                console.debug("[SPOTIFY] received user info: ", user);
                 setMusicServiceUser(req.session, user);
 
                 const url = sessionManager.get(req.session, "requestingURL");
-                res.redirect(typeof url !== "undefined" ? url : "/");
+                res.status(302).redirect(typeof url !== "undefined" ? url : "/");
             })
             .catch((e) => {
-                console.log("Caught error", e);
-                res.redirect(
+                console.error("Caught error", e);
+                res.status(302).redirect(
                     "/door?" +
                         querystring.stringify({
                             error: e,

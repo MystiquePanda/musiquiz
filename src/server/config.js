@@ -26,7 +26,7 @@ module.exports = {
         "mongodb+srv://"+mongoUser+":" +
         mongoPass +
         "@"+mongoCluster+"/musiquiz",
-    sessName: "session",
+    sessName: "dhf",
     sessLifetime: 5 * 24 * 60 * 60 * 1000,
     sessSecret: env.MQ_SESS_SECRET.trim(),
 };
