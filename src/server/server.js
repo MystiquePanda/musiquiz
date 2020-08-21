@@ -47,7 +47,8 @@ app.use(
         secret: config.sessSecret,
         cookie: {
             maxAge: config.sessLifetime,
-            sameSite: false
+            sameSite: false,
+	    secure: !config.isDev,
         },
         store: sessionStore,
     })
@@ -60,7 +61,6 @@ if (config.isDev) {
     };
 } else {
     app.set('trust proxy', 1) // trust first proxy
-    session.cookie.secure = true // serve secure cookies
 
     try {
         app.locals.gVars = require("../../.reactful.json");
