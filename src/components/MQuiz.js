@@ -93,7 +93,6 @@ export default function MQuiz(props) {
     const MQQuestionList = () => (
         <>
             {questions.map((q) => {
-                console.log(q.response || {});
                 return (
                     <MQQuestionForm
                         key={q.id}
@@ -108,7 +107,7 @@ export default function MQuiz(props) {
                                 : "var(--mq-red)"
                         }
                         musicService={musicService}
-                        setParentQuestion={(k, v) =>
+                        onQuestionChange={(k, v) =>
                             handleQuestionUpdate(q.id, k, v)
                         }
                         onAccordionClick={() => setActiveQId(q.id)}

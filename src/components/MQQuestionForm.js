@@ -15,7 +15,7 @@ const MQQuestionForm = (props) => {
         musicService,
         onAccordionClick,
         onQuestionDelete,
-        setParentQuestion,
+        onQuestionChange,
         editMode,
         answer
     } = props;
@@ -31,7 +31,7 @@ const MQQuestionForm = (props) => {
         }
 
         setQuestion(ele.value);
-        setParentQuestion("question", ele.value);
+        onQuestionChange("question", ele.value);
     };
 
     const handleDeleteQuestion = (e) => {
@@ -41,13 +41,13 @@ const MQQuestionForm = (props) => {
 
     const handleAnswerChange = (a) => {
         console.log("sending ",(editMode ? "answer" : "response"),a)
-        setParentQuestion(editMode ? "answer" : "response", a);
+        onQuestionChange(editMode ? "answer" : "response", a);
     };
 
     const handleMatchLevelChange = (e) => {
         const l = Question.matchLevels.slice(0, e.target.value);
         setMatchLevel(l);
-        setParentQuestion("level", l);
+        onQuestionChange("level", l);
     };
 
     return (
