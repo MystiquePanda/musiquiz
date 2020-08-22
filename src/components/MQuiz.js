@@ -5,7 +5,7 @@ import MusicServices from "components/MusicServices";
 import TooltipButton from "components/TooltipButton";
 import { BsMusicNoteList, BsX, BsCheckCircle } from "react-icons/bs";
 
-export default function MQuiz(props) {
+function MQuiz(props) {
     const { handleClose, musicService, quiz } = props;
     const [activeQId, setActiveQId] = useState(0);
     const [questions, setQuestions] = useState(quiz.questions);
@@ -119,16 +119,6 @@ export default function MQuiz(props) {
 
     return (
         <>
-            <Modal.Header
-                style={{
-                    paddingTop: "7px",
-                    paddingBottom: "7px",
-                    color: "white",
-                    backgroundColor: "var(--play-color)",
-                }}
-            >
-                <Modal.Title>{quiz.name}</Modal.Title>
-            </Modal.Header>
             <Modal.Body>
                 <Form>
                     <Accordion activeKey={activeQId.toString()}>
@@ -182,3 +172,5 @@ export default function MQuiz(props) {
         </>
     );
 }
+
+export default MQuiz

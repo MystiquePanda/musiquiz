@@ -51,7 +51,7 @@ const CurrentPlay = (props) => {
                 return res.json();
             })
             .then((data) => {
-                console.log("received data from music service: ", data);
+                console.debug("received data from music service: ", data);
                 onChange(data);
             })
             .catch((err) => {

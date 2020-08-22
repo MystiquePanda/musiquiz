@@ -21,9 +21,9 @@ router.get("/musiquiz/list/:size", async function (req, res) {
         
 });
 
-router.post("/musiquiz/read/:id", async function (req, res) {
-    const quiz = await dba.readQuizById();
-    console.log("done saving ", req.params.id);
+router.get("/musiquiz/read/:id", async function (req, res) {
+    const quiz = await dba.readQuizById(req.params.id);
+    console.log("done reading quiz ", req.params.id);
     res.send(quiz);
 });
 

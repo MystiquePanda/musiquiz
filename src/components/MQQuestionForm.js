@@ -40,7 +40,6 @@ const MQQuestionForm = (props) => {
     };
 
     const handleAnswerChange = (a) => {
-        console.log("sending ",(editMode ? "answer" : "response"),a)
         onQuestionChange(editMode ? "answer" : "response", a);
     };
 

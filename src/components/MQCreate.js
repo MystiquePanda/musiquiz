@@ -87,13 +87,14 @@ class MQCreate extends Component {
         console.debug("saving questions:", quiz);
         return fetch("/db/musiquiz/create/", args)
             .then((res) => {
-                console.log(res);
-                //TODO errorhanding
                 return res.json();
             })
             .then((res) => {
                 //TODO generate link and ask for email
                 window.location.href = "/play/" + res.quizId;
+            })
+            .catch((e) => {
+                //TODO errorhanding
             });
     };
 

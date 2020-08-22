@@ -335,7 +335,6 @@ router.post("/create_playlist", async function (req, res) {
         )
         .then((r) => res.send({ name: r[0].name, link: r[0].link }))
         .catch((e) => {
-            //TODO make custom error to store status and message
             res.status(500).send({ error: e });
         });
 });
