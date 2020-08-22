@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ListGroup } from "react-bootstrap";
+import { withRouter } from "react-router-dom";
 
-export default function MQuizList(props) {
-    const { size } = props;
+function MQuizList(props) {
+    const { size, onQuizSelect, onError } = props;
     const [quizList, setQuizList] = useState([]);
     const [hasRendered, setHasRendered] = useState(false);
 
@@ -10,25 +11,30 @@ export default function MQuizList(props) {
         async function fetchQuizList(size) {
             return await fetch("/db/musiquiz/list/" + size)
                 .then((res) => {
-                    //console.log("RESPONSE ", res);
-                    //TODO errorhanding
                     return res.json();
                 })
                 .then((data) => {
-                    //console.log("DATA ", data);
                     setQuizList(data);
+                })
+                .catch((e) => {
+                    console.error(e);
+                    onError({variant:"danger", msg: "Oops. Problem fetching quiz list. Refreh and try again."})
                 });
         }
 
         fetchQuizList(size);
         setHasRendered(true);
-    }, [hasRendered, size]);
+    }, [hasRendered, size, onError]);
 
     return (
         <ListGroup variant="flush">
             {quizList.map((q) => {
                 return (
-                    <ListGroup.Item key={q.name} action href={"/play/" + q._id}>
+                    <ListGroup.Item
+                        key={q.name}
+                        action
+                        onClick={() => onQuizSelect(q._id)}
+                    >
                         <img
                             src="/images/logo-musiQuiz.png"
                             style={{
@@ -43,3 +49,5 @@ export default function MQuizList(props) {
         </ListGroup>
     );
 }
+
+export default withRouter(MQuizList);

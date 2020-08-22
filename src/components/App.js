@@ -14,7 +14,17 @@ export default class App extends Component {
         if (typeof window !== "undefined" && window.__INITIAL_DATA__) {
             this.state = window.__INITIAL_DATA__;
         }
-        console.debug("[App.js] >>>> state", this.state);
+
+        if (this.state.data && typeof this.state.data.quiz !== "undefined") {
+            this.state.onQuizReset = () => {
+                this.setState((prev) => {
+                    prev.data.quiz = undefined;
+                    return prev;
+                });
+            };
+        }
+
+        console.debug("[App.js] STATE: ", this.state);
     }
 
     render() {
