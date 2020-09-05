@@ -299,7 +299,7 @@ async function populatePlayList(session, playlist, quiz) {
         uris: quiz.questions.map((q) => q.answer.uri),
     };
 
-    console.log("populating playlist with ", quiz);
+    console.log("[SPOTIFY] populating playlist with ", quiz);
     return fetch(
         spotify_api_uri + "/playlists/" + playlist.id + "/tracks",
         postOptionWithAuth(session, params)

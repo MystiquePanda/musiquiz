@@ -5,6 +5,7 @@ import MQQuestionForm from "components/MQQuestionForm";
 import MQAddQuestionButton from "components/MQAddQuestionButton";
 import InplaceEditInput from "components/InplaceEditInput";
 import Question from "components/Question";
+import MQShareEmailDialog from "components/MQShareEmailDialog";
 import { BsCloudUpload, BsX } from "react-icons/bs";
 
 const generateRandomQuizName = () => {
@@ -22,6 +23,7 @@ class MQCreate extends Component {
         activeQId: 0,
         musicService: this.props.musicService,
         show: true,
+        shareQuiz: undefined,
     };
 
     handleQuizNameChange = (e) => {
@@ -65,6 +67,31 @@ class MQCreate extends Component {
         });
     };
 
+    sendMail = async (mail) => {
+        const args = {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            referrerPolicy: "no-referrer",
+            body: JSON.stringify(mail),
+        };
+
+        fetch("/mail/send", args)
+            .then((res) => {
+                return res.json();
+            })
+            .then((res) => {
+                return res;
+            })
+            .catch((e) => {
+                //TODO errorhanding
+            });
+    };
+
     handleSave = () => {
         const quiz = {
             name: this.state.quizName,
@@ -89,9 +116,14 @@ class MQCreate extends Component {
             .then((res) => {
                 return res.json();
             })
-            .then((res) => {
-                //TODO generate link and ask for email
-                window.location.href = "/play/" + res.quizId;
+            .then(async (res) => {
+                console.debug(`musiQ created /play/${res.quizId}`);
+                this.setState({
+                    shareQuiz: {
+                        name: quiz.name,
+                        link: "/play/" + res.quizId,
+                    },
+                });
             })
             .catch((e) => {
                 //TODO errorhanding
@@ -141,62 +173,60 @@ class MQCreate extends Component {
             questions[questions.length - 1]
         );
 
-        return (
-            <>
-                <Modal
-                    show={this.state.show}
-                    onHide={this.handleClose}
-                    keyboard={false}
+        return typeof this.state.shareQuiz !== "undefined" ? (
+            <MQShareEmailDialog
+                quiz={this.state.shareQuiz}
+            ></MQShareEmailDialog>
+        ) : (
+            <Modal
+                show={this.state.show}
+                onHide={this.handleClose}
+                keyboard={false}
+            >
+                <Modal.Header
+                    style={{
+                        paddingTop: "7px",
+                        paddingBottom: "7px",
+                        color: "white",
+                        backgroundColor: "var(--create-color)",
+                    }}
                 >
-                    <Modal.Header
-                        style={{
-                            paddingTop: "7px",
-                            paddingBottom: "7px",
-                            color: "white",
-                            backgroundColor: "var(--create-color)",
-                        }}
+                    <Modal.Title>
+                        <InplaceEditInput
+                            value={quizName}
+                            onChange={this.handleQuizNameChange}
+                        ></InplaceEditInput>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={this.handleQuestionAdd}>
+                        <Accordion activeKey={this.state.activeQId.toString()}>
+                            {this.MQQuestionList()}
+                            <MQAddQuestionButton
+                                disableAdd={isFull || !lastQuestionCompleted}
+                                errorMessage={
+                                    isFull
+                                        ? "maximum number of questions reached"
+                                        : undefined
+                                }
+                                musicService={musicService}
+                            />
+                        </Accordion>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={this.handleClose}>
+                        <BsX />
+                    </Button>
+                    <Button
+                        variant="primary"
+                        disabled={!lastQuestionCompleted}
+                        onClick={this.handleSave}
                     >
-                        <Modal.Title>
-                            <InplaceEditInput
-                                value={quizName}
-                                onChange={this.handleQuizNameChange}
-                            ></InplaceEditInput>
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form onSubmit={this.handleQuestionAdd}>
-                            <Accordion
-                                activeKey={this.state.activeQId.toString()}
-                            >
-                                {this.MQQuestionList()}
-                                <MQAddQuestionButton
-                                    disableAdd={
-                                        isFull || !lastQuestionCompleted
-                                    }
-                                    errorMessage={
-                                        isFull
-                                            ? "maximum number of questions reached"
-                                            : undefined
-                                    }
-                                    musicService={musicService}
-                                />
-                            </Accordion>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={this.handleClose}>
-                            <BsX />
-                        </Button>
-                        <Button
-                            variant="primary"
-                            disabled={!lastQuestionCompleted}
-                            onClick={this.handleSave}
-                        >
-                            <BsCloudUpload />
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </>
+                        <BsCloudUpload />
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }

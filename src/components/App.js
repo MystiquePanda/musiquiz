@@ -9,14 +9,14 @@ import MQUserBadge from "components/MQUserBadge";
 export default class App extends Component {
     constructor(props) {
         super(props);
-        this.state = this.props;
 
+        let state = { ...this.props };
         if (typeof window !== "undefined" && window.__INITIAL_DATA__) {
-            this.state = window.__INITIAL_DATA__;
+            state = { ...window.__INITIAL_DATA__ };
         }
 
-        if (this.state.data && typeof this.state.data.quiz !== "undefined") {
-            this.state.onQuizReset = () => {
+        if (state.data && typeof state.data.quiz !== "undefined") {
+            state.onQuizReset = () => {
                 this.setState((prev) => {
                     prev.data.quiz = undefined;
                     return prev;
@@ -24,6 +24,7 @@ export default class App extends Component {
             };
         }
 
+        this.state = state;
         console.debug("[App.js] STATE: ", this.state);
     }
 

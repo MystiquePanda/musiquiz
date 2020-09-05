@@ -12,7 +12,9 @@ ARG bt_spotify_client
 ARG bt_spotify_secret
 ARG bt_base_uri
 ARG bt_sess_secret
-ENV MQ_MONGODB_CLUSTER=$bt_mongodb_cluster MQ_MONGODB_USER=$bt_mongodb_user MQ_MONGODB_PASS=$bt_mongodb_pass MQ_SPOTIFY_SECRET=$bt_spotify_secret MQ_SPOTIFY_CLIENT=$bt_spotify_client MQ_BASE_URI=$bt_base_uri MQ_SESS_SECRET=$bt_sess_secret 
+ARG bt_email
+ARG bt_email_pass
+ENV MQ_MONGODB_CLUSTER=$bt_mongodb_cluster MQ_MONGODB_USER=$bt_mongodb_user MQ_MONGODB_PASS=$bt_mongodb_pass MQ_SPOTIFY_SECRET=$bt_spotify_secret MQ_SPOTIFY_CLIENT=$bt_spotify_client MQ_BASE_URI=$bt_base_uri MQ_SESS_SECRET=$bt_sess_secret MQ_EMAIL=$bt_email MQ_EMAIL_PASS=$bt_email_pass
 
 
 # Copy application dependency manifests to the container image.

@@ -3,7 +3,6 @@ import MQMenu from "components/MQMenu";
 import MQPlay from "components/MQPlay";
 import MQCreate from "components/MQCreate";
 
-
 export const clientRoutes = [
     { path: "/door", exact: true, component: MQDoor },
     { path: "/", isProtected: true, exact: true, component: MQMenu },
@@ -20,7 +19,7 @@ export const clientRoutes = [
         path: "/play/:id",
         isProtected: true,
         exact: true,
-        component:MQPlay,
-        fetchInitialData:async ()=>{}
+        component: MQPlay,
+        fetchInitialData: async () => {},
     },
-]
+];
