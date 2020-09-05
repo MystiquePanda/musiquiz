@@ -34,7 +34,7 @@
         "express-session": "^1.17.1",
         "helmet": "^4.1.0",
         "isomorphic-fetch": "^2.2.1",
-        "jquery": "1.9.1",
+        "jquery": "3.5.0",
         "mongodb": "^3.5.9",
         "morgan": "^1.10.0",
         "node-fetch": "^2.6.0",
