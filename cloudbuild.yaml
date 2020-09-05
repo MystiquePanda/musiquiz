@@ -22,6 +22,10 @@ steps:
       - 'bt_base_uri=$_BASE_URI'
       - '--build-arg'
       - 'bt_sess_secret=$_SESS_SECRET'
+      - '--build-arg'
+      - 'bt_email=$_EMAIL'
+      - '--build-arg'
+      - 'bt_email_pass=$_EMAIL_PASS'
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:

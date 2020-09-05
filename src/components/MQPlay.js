@@ -32,7 +32,7 @@ class MQPlay extends Component {
             activeQId: 0,
             show: true,
             error: undefined,
-            title: "Pick a Quiz",
+            title: typeof q === "undefined" ? "Pick a Quiz" : q.name,
         };
     }
 

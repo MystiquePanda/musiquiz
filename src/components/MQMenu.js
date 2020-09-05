@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Col,Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import "components/MQPlay";
 import "components/MQCreate";
 
 const MQMenu = () => {
     return (
         <Row>
-            <Col xs={1}/>
+            <Col xs={1} />
             <Col xs={4}>
                 <Link to="/create">
                     <img
@@ -17,7 +17,7 @@ const MQMenu = () => {
                     />
                 </Link>
             </Col>
-            <Col xs={2}/>
+            <Col xs={2} />
             <Col xs={4}>
                 <Link to="/play">
                     <img
@@ -27,7 +27,7 @@ const MQMenu = () => {
                     />
                 </Link>
             </Col>
-            <Col xs={1}/>
+            <Col xs={1} />
         </Row>
     );
 };
