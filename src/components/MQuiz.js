@@ -72,8 +72,6 @@ function MQuiz(props) {
     };
 
     const handleQuestionUpdate = (i, k, v) => {
-        console.debug("[MQuiz] Questions update for ", i, ".", k, ": ", v);
-
         setQuestions((prev) =>
             prev.map((q) => {
                 if (q.id === i) {
@@ -86,8 +84,6 @@ function MQuiz(props) {
         setAnsweredAll(
             questions.every((q) => typeof q.response !== "undefined")
         );
-
-        console.debug(questions);
     };
 
     const MQQuestionList = () => (

@@ -4,8 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "components/App";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/index.css";
+import "../styles/index.scss";
 
 ReactDOM.hydrate(
     <BrowserRouter>
