@@ -37,7 +37,7 @@
         "jquery": "3.5.0",
         "mongodb": "^3.5.9",
         "morgan": "^1.10.0",
-        "node-fetch": "^2.6.1",
+        "node-fetch": "^2.6.7",
         "nodemailer": "^6.4.11",
         "pm2": "^4.4.0",
         "popper.js": "^1.16.1",
